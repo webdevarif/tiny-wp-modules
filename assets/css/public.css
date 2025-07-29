@@ -1,0 +1,63 @@
+/**
+ * Public Styles for Tiny WP Modules
+ */
+
+/* Public Module Styles */
+.tiny-wp-modules-public {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.tiny-wp-modules-container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+.tiny-wp-modules-widget {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tiny-wp-modules-widget h3 {
+	margin: 0 0 15px 0;
+	color: #333;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.tiny-wp-modules-widget p {
+	margin: 0 0 10px 0;
+	color: #666;
+	line-height: 1.6;
+}
+
+.tiny-wp-modules-button {
+	display: inline-block;
+	background: #0073aa;
+	color: white;
+	padding: 10px 20px;
+	text-decoration: none;
+	border-radius: 4px;
+	transition: background-color 0.2s ease;
+}
+
+.tiny-wp-modules-button:hover {
+	background: #005a87;
+	color: white;
+	text-decoration: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.tiny-wp-modules-container {
+		padding: 10px;
+	}
+	
+	.tiny-wp-modules-widget {
+		padding: 15px;
+	}
+} 

@@ -1,0 +1,121 @@
+# Copyright (C) 2024 Digital Farmers
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Tiny WP Modules 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/tiny-wp-modules\n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: src/Admin/Admin.php:67
+msgid "Tiny WP Modules"
+msgstr ""
+
+#: src/Admin/Admin.php:68
+msgid "Tiny Modules"
+msgstr ""
+
+#: src/Admin/Admin.php:76
+msgid "Settings"
+msgstr ""
+
+#: src/Admin/Settings.php:35
+msgid "General Settings"
+msgstr ""
+
+#: src/Admin/Settings.php:42
+msgid "Enable Modules"
+msgstr ""
+
+#: src/Admin/Settings.php:49
+msgid "Debug Mode"
+msgstr ""
+
+#: src/Admin/Settings.php:58
+msgid "Configure the general settings for Tiny WP Modules."
+msgstr ""
+
+#: src/Admin/Settings.php:67
+msgid "Enable all modules by default"
+msgstr ""
+
+#: src/Admin/Settings.php:78
+msgid "Enable debug mode (for development)"
+msgstr ""
+
+#: templates/admin/admin-page.php:15
+msgid "Welcome to Tiny WP Modules"
+msgstr ""
+
+#: templates/admin/admin-page.php:16
+msgid "A modular WordPress plugin with OOP architecture and Composer autoloading."
+msgstr ""
+
+#: templates/admin/admin-page.php:22
+msgid "Plugin Status"
+msgstr ""
+
+#: templates/admin/admin-page.php:26
+msgid "Version:"
+msgstr ""
+
+#: templates/admin/admin-page.php:30
+msgid "PHP Version:"
+msgstr ""
+
+#: templates/admin/admin-page.php:34
+msgid "WordPress Version:"
+msgstr ""
+
+#: templates/admin/admin-page.php:40
+msgid "Quick Actions"
+msgstr ""
+
+#: templates/admin/admin-page.php:47
+msgid "Refresh Status"
+msgstr ""
+
+#: templates/admin/admin-page.php:54
+msgid "Module Information"
+msgstr ""
+
+#: templates/admin/admin-page.php:56
+msgid "This plugin demonstrates a modular architecture with:"
+msgstr ""
+
+#: templates/admin/admin-page.php:58
+msgid "PSR-4 autoloading with Composer"
+msgstr ""
+
+#: templates/admin/admin-page.php:59
+msgid "Object-Oriented Programming"
+msgstr ""
+
+#: templates/admin/admin-page.php:60
+msgid "WordPress coding standards"
+msgstr ""
+
+#: templates/admin/admin-page.php:61
+msgid "Internationalization ready"
+msgstr ""
+
+#: templates/admin/admin-page.php:62
+msgid "Hook loader class"
+msgstr ""
+
+#: templates/admin/settings-page.php:18
+msgid "Plugin Information"
+msgstr ""
+
+#: templates/admin/settings-page.php:19
+msgid "This settings page demonstrates the WordPress Settings API integration with proper sanitization and validation."
+msgstr ""
+
+#: tiny-wp-modules.php:47
+msgid "Tiny WP Modules requires Composer dependencies to be installed. Please run %s in the plugin directory."
+msgstr "" 
