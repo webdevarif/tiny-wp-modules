@@ -251,7 +251,7 @@ class Updater {
 		if ( $screen && 'plugins' === $screen->id ) {
 			wp_enqueue_script(
 				'tiny-wp-modules-plugin-row',
-				TINY_WP_MODULES_PLUGIN_URL . 'assets/js/plugin-row.js',
+				tiny_asset( 'js/plugin-row.js' ),
 				array( 'jquery' ),
 				TINY_WP_MODULES_VERSION,
 				true

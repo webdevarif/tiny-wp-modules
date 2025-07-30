@@ -43,6 +43,26 @@ register_deactivation_hook( __FILE__, 'tiny_wp_modules_deactivate' );
 add_action( 'plugins_loaded', 'tiny_wp_modules_init' );
 
 /**
+ * Get plugin asset URL
+ *
+ * @param string $path Asset path relative to assets directory.
+ * @return string Full asset URL.
+ */
+function tiny_asset( $path ) {
+	return TINY_WP_MODULES_PLUGIN_URL . 'assets/' . ltrim( $path, '/' );
+}
+
+/**
+ * Get plugin image URL
+ *
+ * @param string $path Image path relative to assets/images directory.
+ * @return string Full image URL.
+ */
+function tiny_image( $path ) {
+	return tiny_asset( 'images/' . ltrim( $path, '/' ) );
+}
+
+/**
  * Plugin activation hook
  */
 function tiny_wp_modules_activate() {
@@ -78,15 +98,16 @@ function tiny_wp_modules_deactivate() {
  * Initialize the plugin
  */
 function tiny_wp_modules_init() {
-	// Check if Composer autoloader is available
+	global $tiny_wp_modules_plugin;
+	
 	if ( ! class_exists( 'TinyWpModules\\Core\\Plugin' ) ) {
 		add_action( 'admin_notices', 'tiny_wp_modules_autoloader_missing_notice' );
 		return;
 	}
 
 	// Initialize the main plugin class
-	$plugin = new TinyWpModules\Core\Plugin();
-	$plugin->init();
+	$tiny_wp_modules_plugin = new TinyWpModules\Core\Plugin();
+	$tiny_wp_modules_plugin->init();
 }
 
 /**

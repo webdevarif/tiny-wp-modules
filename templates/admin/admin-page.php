@@ -9,88 +9,87 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// Import classes
+use TinyWpModules\Admin\Components;
 ?>
 
 <div class="wrap">
-	<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-	
 	<div class="tiny-wp-modules-dashboard">
 		<div class="tiny-wp-modules-header">
 			<div class="tiny-wp-modules-header-content">
-				<h2><?php esc_html_e( 'Welcome to Tiny WP Modules', 'tiny-wp-modules' ); ?></h2>
-				<p><?php esc_html_e( 'A modular WordPress plugin with OOP architecture and Composer autoloading.', 'tiny-wp-modules' ); ?></p>
+				<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+				<p><?php esc_html_e( 'Welcome to Tiny WP Modules. Manage your modules and settings here.', 'tiny-wp-modules' ); ?></p>
 			</div>
 		</div>
 
 		<div class="tiny-wp-modules-content">
 			<div class="tiny-wp-modules-grid">
-				<?php echo \TinyWpModules\Admin\Components::render_card( array(
+				<?php echo Components::render_card( array(
 					'title' => __( 'Plugin Status', 'tiny-wp-modules' ),
-					'icon' => 'admin-generic',
-					'content' => '
-						<ul class="status-list">
-							<li>
-								<span class="status-label">' . __( 'Version:', 'tiny-wp-modules' ) . '</span>
-								<span class="status-value">' . TINY_WP_MODULES_VERSION . '</span>
-							</li>
-							<li>
-								<span class="status-label">' . __( 'PHP Version:', 'tiny-wp-modules' ) . '</span>
-								<span class="status-value">' . PHP_VERSION . '</span>
-							</li>
-							<li>
-								<span class="status-label">' . __( 'WordPress Version:', 'tiny-wp-modules' ) . '</span>
-								<span class="status-value">' . get_bloginfo( 'version' ) . '</span>
-							</li>
-						</ul>
-					',
+					'icon' => 'admin-tools',
+					'content' => '<ul class="status-list">
+						<li>
+							<span class="status-label">' . __( 'Version:', 'tiny-wp-modules' ) . '</span>
+							<span class="status-value">' . TINY_WP_MODULES_VERSION . '</span>
+						</li>
+						<li>
+							<span class="status-label">' . __( 'PHP Version:', 'tiny-wp-modules' ) . '</span>
+							<span class="status-value">' . PHP_VERSION . '</span>
+						</li>
+						<li>
+							<span class="status-label">' . __( 'WordPress Version:', 'tiny-wp-modules' ) . '</span>
+							<span class="status-value">' . get_bloginfo( 'version' ) . '</span>
+						</li>
+					</ul>',
 					'actions' => array(
 						array(
-							'type' => 'button',
 							'text' => __( 'Refresh Status', 'tiny-wp-modules' ),
 							'id' => 'refresh-status',
-							'class' => 'button button-secondary',
+							'class' => 'tiny-btn tiny-btn-secondary',
 							'icon' => 'update'
 						)
 					)
 				) ); ?>
 
-				<?php echo \TinyWpModules\Admin\Components::render_card( array(
+				<?php echo Components::render_card( array(
 					'title' => __( 'Quick Actions', 'tiny-wp-modules' ),
-					'icon' => 'admin-tools',
+					'icon' => 'admin-generic',
 					'content' => '<p>' . __( 'Quick access to common plugin functions.', 'tiny-wp-modules' ) . '</p>',
 					'actions' => array(
 						array(
-							'type' => 'link',
 							'text' => __( 'Settings', 'tiny-wp-modules' ),
-							'class' => 'button button-primary',
-							'icon' => 'admin-settings',
-							'attributes' => array(
-								'href' => admin_url( 'admin.php?page=tiny-wp-modules-settings' )
-							)
+							'url' => admin_url( 'admin.php?page=tiny-wp-modules-settings' ),
+							'class' => 'tiny-btn tiny-btn-primary',
+							'icon' => 'admin-settings'
 						),
 						array(
-							'type' => 'button',
-							'text' => __( 'Check for Updates', 'tiny-wp-modules' ),
-							'id' => 'check-for-updates',
-							'class' => 'button button-secondary',
+							'text' => __( 'Check Updates', 'tiny-wp-modules' ),
+							'id' => 'check-updates',
+							'class' => 'tiny-btn tiny-btn-secondary',
 							'icon' => 'update'
 						)
 					)
 				) ); ?>
 
-				<?php echo \TinyWpModules\Admin\Components::render_card( array(
+				<?php echo Components::render_card( array(
 					'title' => __( 'Module Information', 'tiny-wp-modules' ),
 					'icon' => 'admin-plugins',
-					'content' => '
-						<p>' . __( 'This plugin demonstrates a modular architecture with:', 'tiny-wp-modules' ) . '</p>
-						<ul>
-							<li>' . __( 'PSR-4 autoloading with Composer', 'tiny-wp-modules' ) . '</li>
-							<li>' . __( 'Object-Oriented Programming', 'tiny-wp-modules' ) . '</li>
-							<li>' . __( 'WordPress coding standards', 'tiny-wp-modules' ) . '</li>
-							<li>' . __( 'Internationalization ready', 'tiny-wp-modules' ) . '</li>
-							<li>' . __( 'Hook loader class', 'tiny-wp-modules' ) . '</li>
-						</ul>
-					'
+					'content' => '<ul>
+						<li>' . __( 'Hook loader class', 'tiny-wp-modules' ) . '</li>
+						<li>' . __( 'Admin interface', 'tiny-wp-modules' ) . '</li>
+						<li>' . __( 'Public handler', 'tiny-wp-modules' ) . '</li>
+						<li>' . __( 'Update system', 'tiny-wp-modules' ) . '</li>
+						<li>' . __( 'FAQ module', 'tiny-wp-modules' ) . '</li>
+					</ul>',
+					'actions' => array(
+						array(
+							'text' => __( 'View Details', 'tiny-wp-modules' ),
+							'url' => '#',
+							'class' => 'tiny-btn tiny-btn-secondary',
+							'icon' => 'visibility'
+						)
+					)
 				) ); ?>
 			</div>
 		</div>

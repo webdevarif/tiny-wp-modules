@@ -42,8 +42,8 @@ class Public_Handler {
 	 */
 	public function enqueue_styles() {
 		wp_enqueue_style(
-			$this->plugin_name,
-			TINY_WP_MODULES_PLUGIN_URL . 'assets/css/public.css',
+			$this->plugin_name . '-public',
+			tiny_asset( 'css/public.css' ),
 			array(),
 			$this->version,
 			'all'
@@ -55,15 +55,15 @@ class Public_Handler {
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_script(
-			$this->plugin_name,
-			TINY_WP_MODULES_PLUGIN_URL . 'assets/js/public.js',
+			$this->plugin_name . '-public',
+			tiny_asset( 'js/public.js' ),
 			array( 'jquery' ),
 			$this->version,
 			false
 		);
 
 		wp_localize_script(
-			$this->plugin_name,
+			$this->plugin_name . '-public',
 			'tiny_wp_modules_public',
 			array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),

@@ -22,12 +22,13 @@ class Components {
 		$defaults = array(
 			'id'          => '',
 			'name'        => '',
-			'value'       => '',
+			'value'       => '1',
 			'checked'     => false,
 			'label'       => '',
 			'description' => '',
 			'disabled'    => false,
 			'class'       => '',
+			'data_toggle' => '',
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -37,6 +38,7 @@ class Components {
 		$checked = $args['checked'] ? 'checked' : '';
 		$disabled = $args['disabled'] ? 'disabled' : '';
 		$class = esc_attr( $args['class'] );
+		$data_toggle = ! empty( $args['data_toggle'] ) ? 'data-toggle="' . esc_attr( $args['data_toggle'] ) . '"' : '';
 
 		ob_start();
 		?>
@@ -47,7 +49,8 @@ class Components {
 					   name="<?php echo $name; ?>" 
 					   value="<?php echo $value; ?>" 
 					   <?php echo $checked; ?> 
-					   <?php echo $disabled; ?> />
+					   <?php echo $disabled; ?>
+					   <?php echo $data_toggle; ?> />
 				<span class="tiny-wp-modules-slider"></span>
 			</label>
 			<?php if ( ! empty( $args['label'] ) ) : ?>
@@ -79,31 +82,148 @@ class Components {
 			'disabled'    => false,
 			'class'       => 'regular-text',
 			'required'    => false,
+			'content'     => '', // For info type
 		);
 
 		$args = wp_parse_args( $args, $defaults );
 		$type = esc_attr( $args['type'] );
 		$id = esc_attr( $args['id'] );
 		$name = esc_attr( $args['name'] );
-		$value = esc_attr( $args['value'] );
+		$value = is_array( $args['value'] ) ? '' : esc_attr( $args['value'] ); // Handle array values
 		$placeholder = esc_attr( $args['placeholder'] );
 		$disabled = $args['disabled'] ? 'disabled' : '';
 		$class = esc_attr( $args['class'] );
 		$required = $args['required'] ? 'required' : '';
 
 		ob_start();
+		
+		// Handle info type
+		if ( $type === 'info' ) {
+			echo '<div class="field-info">' . wp_kses_post( $args['content'] ) . '</div>';
+			return ob_get_clean();
+		}
+		
+		// Handle text type with base_url
+		if ( $type === 'text' && isset( $args['base_url'] ) ) {
+			echo '<div class="redirect-url-row">';
+			echo '<span class="base-url">' . esc_html( $args['base_url'] ) . '</span>';
+			echo '<input type="text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="' . esc_attr( $class ) . '" />';
+			echo '</div>';
+			
+			if ( ! empty( $args['description'] ) ) {
+				echo '<p class="description">' . esc_html( $args['description'] ) . '</p>';
+			}
+			
+			return ob_get_clean();
+		}
+		
+		// Handle group_header type
+		if ( $type === 'group_header' ) {
+			return self::render_group_header( $args );
+		}
+		
+		// Handle password type
+		if ( $type === 'password' ) {
+			echo '<div class="redirect-url-row">';
+			echo '<span class="base-url">Password:</span>';
+			echo '<input type="password" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="' . esc_attr( $class ) . '" />';
+			echo '</div>';
+			return ob_get_clean();
+		}
+
+		// Handle user_roles_simple type (without redirect URL layout)
+		if ( $type === 'user_roles_simple' ) {
+			$roles = self::get_available_user_roles();
+			$selected_roles = is_array( $args['value'] ) ? $args['value'] : array();
+			
+			echo '<div class="user-roles-container">';
+			echo '<div class="user-roles-grid">';
+			
+			foreach ( $roles as $role_slug => $role_name ) {
+				$checked = in_array( $role_slug, $selected_roles ) ? true : false;
+				
+				// Use the reusable switch component for each role
+				echo self::render_switch( array(
+					'id' => $args['id'] . '_' . $role_slug,
+					'name' => $args['name'] . '[' . $role_slug . ']',
+					'value' => '1',
+					'checked' => $checked,
+					'label' => $role_name,
+					'class' => 'role-switch'
+				) );
+			}
+			
+			echo '</div>'; // .user-roles-grid
+			echo '</div>'; // .user-roles-container
+			return ob_get_clean();
+		}
+		
+		// Handle user_roles type
+		if ( $type === 'user_roles' ) {
+			$roles = self::get_available_user_roles();
+			$selected_roles = is_array( $args['value'] ) ? $args['value'] : array();
+			
+			echo '<div class="user-roles-container">';
+			
+			// Show base URL, input field, and "for:" text for redirect fields
+			echo '<div class="redirect-url-row">';
+			echo '<span class="base-url">' . home_url() . '/</span>';
+			
+			// Use url_value and url_name if provided, otherwise use default
+			$url_value = isset( $args['url_value'] ) ? $args['url_value'] : '';
+			$url_name = isset( $args['url_name'] ) ? $args['url_name'] : $args['name'] . '_input';
+			$url_id = isset( $args['url_name'] ) ? str_replace( 'tiny_wp_modules_settings[', '', str_replace( ']', '', $args['url_name'] ) ) : $args['id'] . '_input';
+			
+			$style = isset( $args['style'] ) ? ' style="' . esc_attr( $args['style'] ) . '"' : '';
+			echo '<input type="text" id="' . esc_attr( $url_id ) . '" name="' . esc_attr( $url_name ) . '" value="' . esc_attr( $url_value ) . '" placeholder="e.g. dashboard" class="tiny-input"' . $style . ' />';
+			echo '<span class="for-text">for:</span>';
+			echo '</div>';
+			
+			// Show user roles checkboxes
+			echo '<div class="user-roles-grid">';
+			
+			foreach ( $roles as $role_slug => $role_name ) {
+				$checked = in_array( $role_slug, $selected_roles ) ? true : false;
+				
+				// Use the reusable switch component for each role
+				echo self::render_switch( array(
+					'id' => $args['id'] . '_' . $role_slug,
+					'name' => $args['name'] . '[' . $role_slug . ']',
+					'value' => '1',
+					'checked' => $checked,
+					'label' => $role_name,
+					'class' => 'role-switch'
+				) );
+			}
+			
+			echo '</div>'; // .user-roles-grid
+			echo '</div>'; // .user-roles-container
+			return ob_get_clean();
+		}
+		
 		?>
 		<?php if ( ! empty( $args['label'] ) ) : ?>
 			<label for="<?php echo $id; ?>"><?php echo esc_html( $args['label'] ); ?></label>
 		<?php endif; ?>
-		<input type="<?php echo $type; ?>" 
-			   id="<?php echo $id; ?>" 
-			   name="<?php echo $name; ?>" 
-			   value="<?php echo $value; ?>" 
-			   placeholder="<?php echo $placeholder; ?>" 
-			   class="<?php echo $class; ?>" 
-			   <?php echo $disabled; ?> 
-			   <?php echo $required; ?> />
+		
+		<?php if ( $type === 'textarea' ) : ?>
+			<textarea id="<?php echo $id; ?>" 
+					  name="<?php echo $name; ?>" 
+					  placeholder="<?php echo $placeholder; ?>" 
+					  class="<?php echo $class; ?>" 
+					  <?php echo $disabled; ?> 
+					  <?php echo $required; ?>><?php echo esc_textarea( $args['value'] ); ?></textarea>
+		<?php else : ?>
+			<input type="<?php echo $type; ?>" 
+				   id="<?php echo $id; ?>" 
+				   name="<?php echo $name; ?>" 
+				   value="<?php echo $value; ?>" 
+				   placeholder="<?php echo $placeholder; ?>" 
+				   class="<?php echo $class; ?>" 
+				   <?php echo $disabled; ?> 
+				   <?php echo $required; ?> />
+		<?php endif; ?>
+		
 		<?php if ( ! empty( $args['description'] ) ) : ?>
 			<p class="description"><?php echo esc_html( $args['description'] ); ?></p>
 		<?php endif; ?>
@@ -173,7 +293,7 @@ class Components {
 			'type'        => 'button',
 			'text'        => '',
 			'id'          => '',
-			'class'       => 'button button-secondary',
+			'class'       => 'tiny-btn tiny-btn-primary',
 			'disabled'    => false,
 			'icon'        => '',
 			'attributes'  => array(),
@@ -289,6 +409,206 @@ class Components {
 	}
 
 	/**
+	 * Render a toggle module with configuration
+	 *
+	 * @param array $args Module arguments.
+	 * @return string HTML output.
+	 */
+	public static function render_toggle_module( $args = array() ) {
+		$defaults = array(
+			'id'                    => '',
+			'name'                  => '',
+			'value'                 => '1',
+			'checked'               => false,
+			'label'                 => '',
+			'description'           => '',
+			'config_title'          => '',
+			'config_description'    => '',
+			'config_fields'         => array(),
+			'class'                 => '',
+			'data_toggle'           => '',
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+		$id = esc_attr( $args['id'] );
+		$name = esc_attr( $args['name'] );
+		$value = esc_attr( $args['value'] );
+		$checked = $args['checked'] ? 'checked' : '';
+		$class = esc_attr( $args['class'] );
+		$data_toggle = ! empty( $args['data_toggle'] ) ? 'data-toggle="' . esc_attr( $args['data_toggle'] ) . '"' : '';
+		$config_title = $args['config_title'];
+		$config_description = $args['config_description'];
+		$config_fields = $args['config_fields'];
+
+		ob_start();
+		?>
+		<div class="tiny-wp-modules-switch-wrapper <?php echo $class; ?>">
+			<label class="tiny-wp-modules-switch">
+				<input type="checkbox" 
+					   id="<?php echo $id; ?>" 
+					   name="<?php echo $name; ?>" 
+					   value="<?php echo $value; ?>" 
+					   <?php echo $checked; ?> 
+					   <?php echo $data_toggle; ?> />
+				<span class="tiny-wp-modules-slider"></span>
+			</label>
+			<?php if ( ! empty( $args['label'] ) ) : ?>
+				<span class="tiny-wp-modules-switch-label"><?php echo esc_html( $args['label'] ); ?></span>
+			<?php endif; ?>
+		</div>
+		<?php if ( ! empty( $args['description'] ) ) : ?>
+			<div class="setting-description">
+				<?php echo esc_html( $args['description'] ); ?>
+			</div>
+		<?php endif; ?>
+		
+		<?php if ( ! empty( $config_title ) ) : ?>
+			<!-- Configuration Card -->
+			<details class="module-config-card" data-toggle-target="<?php echo esc_attr( $args['data_toggle'] ); ?>" <?php echo $checked ? 'open' : ''; ?>>
+				<summary class="module-config-header">
+					<h4><?php echo esc_html( $config_title ); ?></h4>
+					<p><?php echo esc_html( $config_description ); ?></p>
+				</summary>
+				<div class="module-config-content">
+					<?php foreach ( $config_fields as $field ) : ?>
+						<div class="module-config-field">
+							<label for="<?php echo esc_attr( $field['id'] ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
+							<?php echo self::render_input( $field ); ?>
+							<?php if ( ! empty( $field['description'] ) ) : ?>
+								<span class="field-description"><?php echo esc_html( $field['description'] ); ?></span>
+							<?php endif; ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</details>
+		<?php endif; ?>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render a reusable expandable module with toggle switch and collapse/expand link
+	 *
+	 * Usage Example:
+	 * 
+	 * echo Components::render_expandable_module( array(
+	 *     'id' => 'my_module',
+	 *     'name' => 'tiny_wp_modules_settings[my_module]',
+	 *     'checked' => isset( $settings['my_module'] ) ? $settings['my_module'] : 0,
+	 *     'label' => __( 'Enable My Module', 'tiny-wp-modules' ),
+	 *     'description' => __( 'Description of what this module does.', 'tiny-wp-modules' ),
+	 *     'data_toggle' => 'my-module-config',
+	 *     'config_fields' => array(
+	 *         array(
+	 *             'type' => 'text',
+	 *             'id' => 'my_field',
+	 *             'name' => 'tiny_wp_modules_settings[my_field]',
+	 *             'value' => isset( $settings['my_field'] ) ? $settings['my_field'] : '',
+	 *             'placeholder' => __( 'Enter value', 'tiny-wp-modules' ),
+	 *             'class' => 'tiny-input',
+	 *             'label' => __( 'My Field', 'tiny-wp-modules' ),
+	 *             'description' => __( 'Description of this field', 'tiny-wp-modules' )
+	 *         )
+	 *     )
+	 * ) );
+	 *
+	 * @param array $args {
+	 *     @type string $id                    Unique ID for the toggle switch
+	 *     @type string $name                  Name attribute for the toggle switch
+	 *     @type string $value                 Value for the toggle switch (default: '1')
+	 *     @type bool   $checked               Whether the toggle is checked
+	 *     @type string $label                 Label text for the toggle switch
+	 *     @type string $description           Description text below the toggle
+	 *     @type string $class                 Additional CSS classes
+	 *     @type string $data_toggle           Data attribute for toggle target
+	 *     @type array  $config_fields         Array of configuration fields
+	 *     @type string $config_title          Title for the configuration section
+	 *     @type string $config_description    Description for the configuration section
+	 * }
+	 * @return string HTML output
+	 */
+	public static function render_expandable_module( $args = array() ) {
+		$defaults = array(
+			'id' => '',
+			'name' => '',
+			'value' => '1',
+			'checked' => false,
+			'label' => '',
+			'description' => '',
+			'class' => '',
+			'data_toggle' => '',
+			'config_fields' => array(),
+			'config_title' => '',
+			'config_description' => ''
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+
+		// Validate required parameters
+		if ( empty( $args['id'] ) || empty( $args['name'] ) || empty( $args['label'] ) ) {
+			return '';
+		}
+
+		$checked = $args['checked'] ? 'checked' : '';
+		$data_toggle = ! empty( $args['data_toggle'] ) ? 'data-toggle="' . esc_attr( $args['data_toggle'] ) . '"' : '';
+
+		ob_start();
+		?>
+		<div class="expandable-module <?php echo esc_attr( $args['class'] ); ?>" data-expandable-module="<?php echo esc_attr( $args['data_toggle'] ); ?>">
+			<!-- Toggle Switch -->
+			<div class="module-toggle">
+				<?php echo self::render_switch( array(
+					'id' => $args['id'],
+					'name' => $args['name'],
+					'value' => $args['value'],
+					'checked' => $args['checked'],
+					'label' => $args['label'],
+					'class' => 'toggle-switch',
+					'data_toggle' => $args['data_toggle']
+				) ); ?>
+				
+				<?php if ( ! empty( $args['description'] ) ) : ?>
+					<div class="setting-description">
+						<?php echo esc_html( $args['description'] ); ?>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<!-- Configuration Fields -->
+			<?php if ( ! empty( $args['config_fields'] ) ) : ?>
+				<div class="config-fields-section" id="config-<?php echo esc_attr( $args['data_toggle'] ); ?>" data-toggle-target="<?php echo esc_attr( $args['data_toggle'] ); ?>">
+					<?php if ( ! empty( $args['config_title'] ) || ! empty( $args['config_description'] ) ) : ?>
+						<div class="config-header">
+							<?php if ( ! empty( $args['config_title'] ) ) : ?>
+								<h4><?php echo esc_html( $args['config_title'] ); ?></h4>
+							<?php endif; ?>
+							<?php if ( ! empty( $args['config_description'] ) ) : ?>
+								<p><?php echo esc_html( $args['config_description'] ); ?></p>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
+
+					<?php foreach ( $args['config_fields'] as $field ) : ?>
+						<div class="config-field">
+							<?php echo self::render_input( $field ); ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+
+				<!-- Collapse/Expand Link - Outside the config-fields-section -->
+				<div class="config-collapse-link" id="collapse-<?php echo esc_attr( $args['data_toggle'] ); ?>" data-toggle-target="<?php echo esc_attr( $args['data_toggle'] ); ?>">
+					<a href="#" class="collapse-toggle" data-toggle="<?php echo esc_attr( $args['data_toggle'] ); ?>">
+						<span class="collapse-text">EXPAND</span>
+						<span class="collapse-icon">▼</span>
+					</a>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
 	 * Render a form table row
 	 *
 	 * @param array $args Row arguments.
@@ -326,5 +646,55 @@ class Components {
 		</tr>
 		<?php
 		return ob_get_clean();
+	}
+	
+	/**
+	 * Render a group header component
+	 *
+	 * @param array $args Group header arguments.
+	 * @return string HTML output.
+	 */
+	public static function render_group_header( $args = array() ) {
+		$defaults = array(
+			'title'       => '',
+			'description' => '',
+			'class'       => '',
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+		$title = $args['title'];
+		$description = $args['description'];
+		$class = esc_attr( $args['class'] );
+
+		ob_start();
+		?>
+		<div class="group-header <?php echo $class; ?>">
+			<?php if ( ! empty( $title ) ) : ?>
+				<h4><?php echo esc_html( $title ); ?></h4>
+			<?php endif; ?>
+			<?php if ( ! empty( $description ) ) : ?>
+				<p><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Get all available user roles
+	 * 
+	 * @return array Array of user roles
+	 */
+	private static function get_available_user_roles() {
+		$roles = array();
+		$wp_roles = wp_roles();
+		
+		if ( $wp_roles ) {
+			foreach ( $wp_roles->roles as $role_slug => $role_data ) {
+				$roles[$role_slug] = $role_data['name'];
+			}
+		}
+		
+		return $roles;
 	}
 }

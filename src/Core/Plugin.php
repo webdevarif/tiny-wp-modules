@@ -11,6 +11,13 @@ use TinyWpModules\Admin\Admin;
 use TinyWpModules\Public\Public_Handler;
 use TinyWpModules\Core\Loader;
 use TinyWpModules\Core\I18n;
+use TinyWpModules\Modules\FAQ_Module;
+use TinyWpModules\Advanced\Change_Login_URL;
+use TinyWpModules\Advanced\Redirect_After_Login;
+use TinyWpModules\Advanced\Redirect_After_Logout;
+use TinyWpModules\Advanced\Redirect_404;
+use TinyWpModules\Advanced\Password_Protection;
+use TinyWpModules\Advanced\SVG_Upload;
 
 /**
  * Main Plugin Class
@@ -22,35 +29,42 @@ class Plugin {
 	 *
 	 * @var string
 	 */
-	protected $version;
+	private $version;
 
 	/**
-	 * Plugin name
+	 * Plugin slug
 	 *
 	 * @var string
 	 */
-	protected $plugin_name;
+	private $plugin_slug = 'tiny-wp-modules';
 
 	/**
-	 * Loader instance
+	 * Plugin loader
 	 *
 	 * @var Loader
 	 */
-	protected $loader;
+	private $loader;
 
 	/**
-	 * Admin instance
+	 * Admin class
 	 *
 	 * @var Admin
 	 */
-	protected $admin;
+	private $admin;
 
 	/**
-	 * Public handler instance
+	 * Public class
 	 *
 	 * @var Public_Handler
 	 */
-	protected $public;
+	private $public;
+
+	/**
+	 * FAQ Module
+	 *
+	 * @var FAQ_Module
+	 */
+	private $faq_module;
 
 	/**
 	 * Constructor
@@ -73,24 +87,30 @@ class Plugin {
 	}
 
 	/**
-	 * Load plugin dependencies
+	 * Load the required dependencies for this plugin
+	 * Classes are now autoloaded via Composer PSR-4 autoloader
 	 */
 	private function load_dependencies() {
-		// Initialize admin
+		// Initialize core components
+		$this->loader = new Loader();
 		$this->admin = new Admin( $this->get_plugin_name(), $this->get_version() );
-
-		// Initialize public handler
 		$this->public = new Public_Handler( $this->get_plugin_name(), $this->get_version() );
-
-		// Initialize updater
-		$this->updater = new Updater();
+		
+		// Initialize modules
+		$this->faq_module = new FAQ_Module();
+		$this->change_login_url = new Change_Login_URL();
+		$this->redirect_after_login = new Redirect_After_Login();
+		$this->redirect_after_logout = new Redirect_After_Logout();
+		$this->redirect_404 = new Redirect_404();
+		$this->password_protection = new Password_Protection();
+		$this->svg_upload = new SVG_Upload();
 	}
 
 	/**
 	 * Set locale for internationalization
 	 */
 	private function set_locale() {
-		$i18n = new I18n();
+		$i18n = new \TinyWpModules\Core\I18n();
 		$this->loader->add_action( 'plugins_loaded', $i18n, 'load_plugin_textdomain' );
 	}
 
@@ -99,9 +119,11 @@ class Plugin {
 	 */
 	private function define_admin_hooks() {
 		$this->loader->add_action( 'admin_enqueue_scripts', $this->admin, 'enqueue_styles' );
+		$this->loader->add_action( 'init', $this->admin, 'register_scripts' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $this->admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $this->admin, 'add_admin_menu' );
 		$this->loader->add_action( 'admin_init', $this->admin, 'init_settings' );
+		$this->loader->add_action( 'admin_init', $this->admin, 'handle_settings_submission' );
 	}
 
 	/**
@@ -145,5 +167,34 @@ class Plugin {
 	 */
 	public function get_version() {
 		return $this->version;
+	}
+
+	/**
+	 * Get plugin slug
+	 *
+	 * @return string
+	 */
+	public function get_plugin_slug() {
+		return $this->plugin_slug;
+	}
+
+	/**
+	 * Get asset URL
+	 *
+	 * @param string $path Asset path relative to assets directory.
+	 * @return string Full asset URL.
+	 */
+	public function get_asset_url( $path ) {
+		return TINY_WP_MODULES_PLUGIN_URL . 'assets/' . ltrim( $path, '/' );
+	}
+
+	/**
+	 * Get image URL
+	 *
+	 * @param string $path Image path relative to assets/images directory.
+	 * @return string Full image URL.
+	 */
+	public function get_image_url( $path ) {
+		return $this->get_asset_url( 'images/' . ltrim( $path, '/' ) );
 	}
 } 
