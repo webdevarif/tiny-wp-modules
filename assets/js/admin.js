@@ -26,6 +26,7 @@
             this.hideAllConfigSections();
             this.initModuleToggles();
             this.bindEvents();
+            this.handleBannerClose();
         },
 
         /**
@@ -122,6 +123,18 @@
                 collapseText.text('EXPAND');
                 collapseIcon.text('▼');
             }
+        },
+
+        /**
+         * Handle banner close button
+         */
+        handleBannerClose: function() {
+            $(document).on('click', '.banner-close, #banner-close-btn', function() {
+                var banner = $('#tiny-wp-modules-banner');
+                banner.fadeOut(300, function() {
+                    banner.remove();
+                });
+            });
         }
     };
 

@@ -60,15 +60,18 @@ $current_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'ge
 $tabs = array(
 	'general' => array(
 		'label' => __( 'General', 'tiny-wp-modules' ),
-		'icon' => 'admin-generic'
+		'icon' => 'general.svg',
+		'icon_type' => 'custom'
 	),
 	'updates' => array(
 		'label' => __( 'Updates', 'tiny-wp-modules' ),
-		'icon' => 'update'
+		'icon' => 'updates.svg',
+		'icon_type' => 'custom'
 	),
 	'advanced' => array(
 		'label' => __( 'Advanced', 'tiny-wp-modules' ),
-		'icon' => 'admin-tools'
+		'icon' => 'advanced.svg',
+		'icon_type' => 'custom'
 	),
 );
 
@@ -85,13 +88,33 @@ if ( isset( $settings['allowed_login_paths'] ) ) {
 	<!-- Full Card Container -->
 	<div class="tiny-wp-modules-card-container">
 		<!-- Top Banner with Notifications -->
-		<div class="tiny-wp-modules-banner">
+		<div class="tiny-wp-modules-banner" id="tiny-wp-modules-banner">
+			<div class="banner-background">
+				<div class="banner-pattern"></div>
+				<div class="banner-shapes">
+					<div class="shape shape-1"></div>
+					<div class="shape shape-2"></div>
+					<div class="shape shape-3"></div>
+				</div>
+			</div>
 			<div class="banner-content">
-				<span class="banner-text"><?php esc_html_e( 'Tiny WP Modules is ready to enhance your WordPress site', 'tiny-wp-modules' ); ?></span>
-				<button class="banner-close" type="button" aria-label="<?php esc_attr_e( 'Close', 'tiny-wp-modules' ); ?>">
-					<span class="dashicons dashicons-no-alt"></span>
+				<div class="banner-left">
+					<div class="banner-icon">
+						<div class="icon-container">
+							<img src="<?php echo esc_url( tiny_image( 'logo/32x32.png' ) ); ?>" alt="Tiny WP Modules Logo" class="logo-image">
+							<div class="icon-glow"></div>
+							<div class="icon-particles"></div>
+						</div>
+					</div>
+					<div class="banner-text-content">
+						<h3 class="banner-title"><?php esc_html_e( 'Welcome to Tiny WP Modules!', 'tiny-wp-modules' ); ?></h3>
+						<p class="banner-text"><?php esc_html_e( 'Your WordPress site is ready to be enhanced with powerful modules and features.', 'tiny-wp-modules' ); ?></p>
+					</div>
+				</div>
+				<button class="banner-close" type="button" aria-label="<?php esc_attr_e( 'Close', 'tiny-wp-modules' ); ?>" id="banner-close-btn">
+					<img src="<?php echo esc_url( tiny_icon( 'close.svg' ) ); ?>" alt="<?php esc_attr_e( 'Close', 'tiny-wp-modules' ); ?>" class="close-icon">
 				</button>
-	</div>
+			</div>
 		</div>
 		
 		<!-- Success Notification -->
@@ -113,7 +136,11 @@ if ( isset( $settings['allowed_login_paths'] ) ) {
 				<?php foreach ( $tabs as $tab_key => $tab_data ) : ?>
 					<a href="?page=tiny-wp-modules-settings&tab=<?php echo esc_attr( $tab_key ); ?>" 
 					   class="nav-menu-item <?php echo $current_tab === $tab_key ? 'active' : ''; ?>">
-						<span class="dashicons dashicons-<?php echo esc_attr( $tab_data['icon'] ); ?>"></span>
+						<?php if ( isset( $tab_data['icon_type'] ) && $tab_data['icon_type'] === 'custom' ) : ?>
+							<img src="<?php echo esc_url( tiny_icon( $tab_data['icon'] ) ); ?>" alt="<?php echo esc_attr( $tab_data['label'] ); ?>" class="nav-menu-icon">
+						<?php else : ?>
+							<span class="dashicons dashicons-<?php echo esc_attr( $tab_data['icon'] ); ?>"></span>
+						<?php endif; ?>
 						<span class="nav-menu-label"><?php echo esc_html( $tab_data['label'] ); ?></span>
 					</a>
 				<?php endforeach; ?>
@@ -125,7 +152,11 @@ if ( isset( $settings['allowed_login_paths'] ) ) {
 				<div class="content-header">
 					<div class="header-content">
 						<div class="header-icon">
-							<span class="dashicons dashicons-<?php echo esc_attr( $tabs[$current_tab]['icon'] ); ?>"></span>
+							<?php if ( isset( $tabs[$current_tab]['icon_type'] ) && $tabs[$current_tab]['icon_type'] === 'custom' ) : ?>
+								<img src="<?php echo esc_url( tiny_icon( $tabs[$current_tab]['icon'] ) ); ?>" alt="<?php echo esc_attr( $tabs[$current_tab]['label'] ); ?>" class="header-icon-img">
+							<?php else : ?>
+								<span class="dashicons dashicons-<?php echo esc_attr( $tabs[$current_tab]['icon'] ); ?>"></span>
+							<?php endif; ?>
 						</div>
 						<div class="header-text">
 							<h2><?php echo esc_html( $tabs[$current_tab]['label'] ); ?></h2>

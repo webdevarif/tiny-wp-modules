@@ -63,6 +63,16 @@ function tiny_image( $path ) {
 }
 
 /**
+ * Get plugin icon URL
+ *
+ * @param string $path Icon path relative to assets/icons directory.
+ * @return string Full icon URL.
+ */
+function tiny_icon( $path ) {
+	return tiny_asset( 'icons/' . ltrim( $path, '/' ) );
+}
+
+/**
  * Plugin activation hook
  */
 function tiny_wp_modules_activate() {
