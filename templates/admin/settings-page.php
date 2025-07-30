@@ -301,6 +301,7 @@ if ( isset( $settings['allowed_login_paths'] ) ) {
 															'placeholder' => __( 'e.g. backend', 'tiny-wp-modules' ),
 															'class' => 'tiny-input',
 															'label' => __( 'New login URL:', 'tiny-wp-modules' ),
+															// 'description' => '',
 															'base_url' => home_url() . '/'
 														),
 														array(
