@@ -1150,7 +1150,7 @@ input:checked + .tiny-wp-modules-slider:before {
 /* Expandable Module Component */
 .expandable-module .config-fields-section {
 	margin-top: var(--tiny-spacing-sm);
-	display: none !important; /* Hidden by default */
+	display: none; /* Hidden by default */
 	transition: all 0.3s ease;
 	position: relative;
 	overflow: hidden;
@@ -1158,17 +1158,13 @@ input:checked + .tiny-wp-modules-slider:before {
 }
 
 .expandable-module .config-fields-section.show { 
-	display: block !important; 
+	display: block; 
 }
 
 .expandable-module .config-fields-section.collapsed {
 	height: var(--tiny-height-collapsed);
 	position: relative;
 	overflow: hidden;
-}
-/* Ensure collapsed sections show content when enabled */
-.expandable-module .config-fields-section.show {
-	display: block !important;
 }
 
 .expandable-module .config-fields-section.collapsed::after {
@@ -1232,7 +1228,7 @@ input:checked + .tiny-wp-modules-slider:before {
 .expandable-module .config-collapse-link {
 	margin-top: var(--tiny-spacing-md);
 	padding: 0;
-	display: none !important; /* Hidden by default */
+	display: none; /* Hidden by default */
 	background: var(--tiny-bg-primary);
 	position: relative;
 	z-index: 20;
@@ -1344,10 +1340,9 @@ input:checked + .tiny-wp-modules-slider:before {
 
 /* Group Header Component */
 .group-header {
-	margin: var(--tiny-spacing-lg) 0 var(--tiny-spacing-md) 0;
+	margin: 0;
 	padding: var(--tiny-spacing-md);
 	background: var(--tiny-bg-light);
-	border-left: 3px solid var(--tiny-primary-color);
 	border-radius: var(--tiny-border-radius);
 }
 
@@ -1607,179 +1602,192 @@ input:checked + .tiny-wp-modules-slider:before {
 	align-items: center;
 	justify-content: center;
 }
-/* Elementor Save Section */
-.elementor-save-section {
-	margin-top: var(--tiny-spacing-xl);
-	padding-top: var(--tiny-spacing-lg);
-	border-top: 1px solid var(--tiny-border-light);
-	text-align: center;
-}
 
-.elementor-save-button {
-	padding: var(--tiny-spacing-md) var(--tiny-spacing-xl) !important;
-	font-size: var(--tiny-font-size-md) !important;
-	font-weight: var(--tiny-font-weight-medium) !important;
-	height: auto !important;
-	line-height: 1.4 !important;
-}
 
-.elementor-save-button .dashicons {
-	margin-right: var(--tiny-spacing-xs);
-	vertical-align: middle;
-}
-
-/* Elementor Modules Grid System */
-.elementor-modules-grid {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+/* Elementor Vertical Groups */
+.elementor-vertical-groups {
+	display: flex;
+	flex-direction: column;
 	gap: var(--tiny-spacing-lg);
-	margin-bottom: var(--tiny-spacing-xxl);
+	padding: var(--tiny-spacing-lg);
 }
 
-
-
-.elementor-module-card {
-	background: var(--tiny-bg-primary);
+.elementor-group {
+	background: white;
 	border: 1px solid var(--tiny-border-light);
 	border-radius: var(--tiny-border-radius-lg);
-	padding: var(--tiny-spacing-lg);
+	overflow: hidden;
 	transition: all var(--tiny-transition-fast);
 }
 
-.elementor-module-card:hover {
+.elementor-group:hover {
 	border-color: var(--tiny-primary-color);
-	box-shadow: 0 4px 12px rgba(0, 115, 170, 0.1);
 }
 
-.module-header {
-	display: flex;
-	align-items: flex-start;
-	gap: var(--tiny-spacing-md);
-	margin-bottom: var(--tiny-spacing-lg);
-}
-
-.module-icon {
-	width: 40px;
-	height: 40px;
-	background: var(--tiny-bg-secondary);
-	border-radius: var(--tiny-border-radius-md);
+/* Group Header */
+.group-header {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
+	padding: var(--tiny-spacing-lg);
+	background: white;
+	transition: all var(--tiny-transition-fast);
+	position: relative;
 }
 
-.module-icon .dashicons {
-	font-size: 20px;
-	color: var(--tiny-primary-color);
+.group-header.enabled {
+	background: white;
 }
 
-.module-info {
+.group-header.disabled {
+	background: white;
+	opacity: 0.7;
+}
+
+/* Group Switch */
+.group-switch {
+	margin-right: var(--tiny-spacing-md);
+	display: flex;
+	align-items: center;
+}
+
+.group-switch-toggle {
+	transform: scale(0.9);
+}
+
+.group-switch-toggle .toggle-switch {
+	background: white;
+	border: 2px solid #cbd5e1;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.group-switch-toggle .toggle-switch:hover {
+	border-color: var(--tiny-primary-color);
+	box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+}
+
+.group-switch-toggle .toggle-slider {
+	background: #94a3b8;
+}
+
+.group-switch-toggle input:checked + .toggle-switch {
+	background: var(--tiny-primary-color);
+	border-color: var(--tiny-primary-color);
+	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.group-switch-toggle input:checked + .toggle-switch .toggle-slider {
+	background: white;
+}
+
+/* Group Info */
+.group-info {
+	display: flex;
+	align-items: center;
 	flex: 1;
 }
 
-.module-info h3 {
-	margin: 0 0 var(--tiny-spacing-xs) 0;
+
+
+.group-details h3 {
+	margin: 0 0 var(--tiny-spacing-sm) 0;
 	font-size: var(--tiny-font-size-lg);
 	font-weight: var(--tiny-font-weight-semibold);
 	color: var(--tiny-text-primary);
+	transition: color var(--tiny-transition-fast);
 }
 
-.module-info p {
+.group-details p {
 	margin: 0;
 	font-size: var(--tiny-font-size-sm);
 	color: var(--tiny-text-secondary);
 	line-height: 1.4;
 }
 
-.module-toggle {
-	margin-left: auto;
+
+
+/* Group Content */
+.group-content {
+	padding: var(--tiny-spacing-lg);
+	background: #fafbfc;
+	transition: opacity 0.2s ease-in-out;
 }
 
-.module-items {
-	margin-top: var(--tiny-spacing-lg);
-	padding-top: var(--tiny-spacing-lg);
-	border-top: 1px solid var(--tiny-border-light);
-}
-
-.items-grid {
+.group-items {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	gap: var(--tiny-spacing-md);
 }
 
-.item-card {
-	background: var(--tiny-bg-secondary);
-	border: 1px solid var(--tiny-border-light);
-	border-radius: var(--tiny-border-radius-md);
+.group-item {
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: var(--tiny-border-radius-lg);
 	padding: var(--tiny-spacing-md);
-	transition: all var(--tiny-transition-fast);
-}
-
-.item-card:hover {
-	border-color: var(--tiny-primary-color);
-	background: var(--tiny-bg-light);
-}
-
-.item-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: var(--tiny-spacing-xs);
+	transition: all var(--tiny-transition-fast);
 }
 
-.item-header h4 {
-	margin: 0;
+.group-item:hover {
+	background: white;
+	border-color: var(--tiny-primary-color);
+}
+
+.item-info {
+	flex: 1;
+}
+
+.item-info h4 {
+	margin: 0 0 var(--tiny-spacing-sm) 0;
 	font-size: var(--tiny-font-size-md);
 	font-weight: var(--tiny-font-weight-medium);
 	color: var(--tiny-text-primary);
 }
 
 .item-category {
-	font-size: var(--tiny-font-size-xs);
-	color: var(--tiny-text-muted);
+	display: inline-block;
 	background: var(--tiny-bg-light);
-	padding: 2px 8px;
-	border-radius: var(--tiny-border-radius-sm);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-.item-description {
-	margin: 0 0 var(--tiny-spacing-sm) 0;
-	font-size: var(--tiny-font-size-sm);
 	color: var(--tiny-text-secondary);
-	line-height: 1.4;
+	font-size: 10px;
+	font-weight: var(--tiny-font-weight-medium);
+	padding: 1px 6px;
+	border-radius: 10px;
+	text-transform: capitalize;
+	letter-spacing: 0.3px;
+	border: 1px solid var(--tiny-border-light);
 }
 
 .item-toggle {
-	text-align: right;
+	margin-left: var(--tiny-spacing-md);
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-	.elementor-modules-grid {
-		grid-template-columns: repeat(2, 1fr);
-	}
-}
-
 @media (max-width: 768px) {
-	.elementor-modules-grid {
-		grid-template-columns: 1fr;
+	.elementor-vertical-groups {
+		padding: var(--tiny-spacing-lg);
+		gap: var(--tiny-spacing-lg);
 	}
 	
-	.items-grid {
+	.group-items {
 		grid-template-columns: 1fr;
+		gap: var(--tiny-spacing-md);
 	}
 	
-	.module-header {
+	.group-header {
 		flex-direction: column;
 		align-items: flex-start;
+		gap: var(--tiny-spacing-md);
+		padding: var(--tiny-spacing-lg);
 	}
 	
-	.module-toggle {
-		margin-left: 0;
-		margin-top: var(--tiny-spacing-sm);
+	.group-switch {
+		margin-right: 0;
+		margin-bottom: var(--tiny-spacing-sm);
+	}
+	
+	.group-content {
+		padding: var(--tiny-spacing-lg);
 	}
 }
 

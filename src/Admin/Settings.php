@@ -76,6 +76,8 @@ class Settings {
 	 * @return array Sanitized data.
 	 */
 	public function sanitize_settings( $input ) {
+		// Get existing settings to preserve values not in current form
+		$existing_settings = get_option( $this->option_name, array() );
 		$sanitized = array();
 
 		// Sanitize enable modules
@@ -90,7 +92,7 @@ class Settings {
 		// Sanitize Elementor settings
 		$sanitized['enable_elementor'] = isset( $input['enable_elementor'] ) ? '1' : '0';
 		
-		// Sanitize Elementor module settings
+		// Sanitize Elementor module settings - preserve existing values if not in current form
 		$elementor_modules = array(
 			'elementor_widgets',
 			'elementor_tags',
@@ -98,48 +100,32 @@ class Settings {
 		);
 		
 		foreach ( $elementor_modules as $module ) {
-			$sanitized[ $module ] = isset( $input[ $module ] ) ? '1' : '0';
+			if ( isset( $input[ $module ] ) ) {
+				$sanitized[ $module ] = '1';
+			} else {
+				$sanitized[ $module ] = isset( $existing_settings[ $module ] ) ? $existing_settings[ $module ] : '0';
+			}
 		}
 		
-		// Sanitize Elementor widget settings
-		$widget_items = array(
-			'hero_section_widget',
-			'testimonials_widget',
-			'pricing_table_widget',
-			'team_members_widget',
-			'countdown_timer_widget',
-			'progress_bars_widget'
-		);
-		
-		foreach ( $widget_items as $widget ) {
-			$sanitized[ $widget ] = isset( $input[ $widget ] ) ? '1' : '0';
-		}
-		
-		// Sanitize Elementor tag settings
-		$tag_items = array(
-			'user_info_tag',
-			'post_meta_tag',
-			'site_info_tag',
-			'custom_fields_tag',
-			'query_loop_tag'
-		);
-		
-		foreach ( $tag_items as $tag ) {
-			$sanitized[ $tag ] = isset( $input[ $tag ] ) ? '1' : '0';
-		}
-		
-		// Sanitize Elementor WooCommerce settings
-		$woocommerce_items = array(
-			'product_grid_widget',
-			'product_carousel_widget',
-			'category_showcase_widget',
-			'cart_summary_widget',
-			'wishlist_widget',
-			'product_comparison_widget'
-		);
-		
-		foreach ( $woocommerce_items as $item ) {
-			$sanitized[ $item ] = isset( $input[ $item ] ) ? '1' : '0';
+		// Sanitize all other Elementor-related settings dynamically
+		// This preserves existing values for any settings not in the current form
+		foreach ( $existing_settings as $key => $value ) {
+			// Skip settings we've already handled
+			if ( in_array( $key, array( 'enable_modules', 'debug_mode', 'enable_faq', 'enable_elementor', 'faq_label', 'faq_slug' ) ) ) {
+				continue;
+			}
+			
+			// Skip the main module settings we handled above
+			if ( in_array( $key, $elementor_modules ) ) {
+				continue;
+			}
+			
+			// For any other Elementor-related setting, preserve existing value if not in current form
+			if ( ! isset( $input[ $key ] ) ) {
+				$sanitized[ $key ] = $value;
+			} else {
+				$sanitized[ $key ] = '1';
+			}
 		}
 		
 		if ( isset( $input['faq_label'] ) ) {

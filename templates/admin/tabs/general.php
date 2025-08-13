@@ -116,7 +116,8 @@ $settings = get_option( 'tiny_wp_modules_settings', array() );
 						'name' => 'tiny_wp_modules_settings[enable_elementor]',
 						'value' => '1',
 						'checked' => isset( $settings['enable_elementor'] ) ? $settings['enable_elementor'] : 0,
-						'label' => __( 'Enable Elementor readymade widgets', 'tiny-wp-modules' )
+						'label' => __( 'Enable Elementor readymade widgets', 'tiny-wp-modules' ),
+						'class' => 'elementor-switch'
 					) ); ?>
 					<div class="setting-description">
 						<?php esc_html_e( 'Enable Elementor support for readymade widgets and enhanced functionality.', 'tiny-wp-modules' ); ?>

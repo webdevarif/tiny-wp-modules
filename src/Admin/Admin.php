@@ -160,11 +160,20 @@ class Admin {
 		error_log( 'Tiny WP Modules: Registering script - ' . $script_url );
 		error_log( 'Tiny WP Modules: Plugin URL constant: ' . TINY_WP_MODULES_PLUGIN_URL );
 		
+		// Register Alpine.js first
+		wp_register_script(
+			'alpinejs',
+			'https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js',
+			array(),
+			'3.0.0',
+			false
+		);
+
 		// Register admin JavaScript
 		$registered = wp_register_script(
 			$this->plugin_name . '-admin',
 			$script_url,
-			array( 'jquery' ),
+			array( 'jquery', 'alpinejs' ),
 			$this->version,
 			false
 		);

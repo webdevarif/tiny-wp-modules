@@ -29,6 +29,7 @@ class Components {
 			'disabled'    => false,
 			'class'       => '',
 			'data_toggle' => '',
+			'x_on_change' => '',
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -39,6 +40,7 @@ class Components {
 		$disabled = $args['disabled'] ? 'disabled' : '';
 		$class = esc_attr( $args['class'] );
 		$data_toggle = ! empty( $args['data_toggle'] ) ? 'data-toggle="' . esc_attr( $args['data_toggle'] ) . '"' : '';
+		$x_on_change = ! empty( $args['x_on_change'] ) ? esc_attr( $args['x_on_change'] ) : '';
 
 		ob_start();
 		?>
@@ -50,7 +52,8 @@ class Components {
 					   value="<?php echo $value; ?>" 
 					   <?php echo $checked; ?> 
 					   <?php echo $disabled; ?>
-					   <?php echo $data_toggle; ?> />
+					   <?php echo $data_toggle; ?>
+					   <?php if ( ! empty( $x_on_change ) ) : ?>@change="<?php echo $x_on_change; ?>"<?php endif; ?> />
 				<span class="tiny-wp-modules-slider"></span>
 			</label>
 			<?php if ( ! empty( $args['label'] ) ) : ?>
@@ -554,7 +557,13 @@ class Components {
 
 		ob_start();
 		?>
-		<div class="expandable-module <?php echo esc_attr( $args['class'] ); ?>" data-expandable-module="<?php echo esc_attr( $args['data_toggle'] ); ?>">
+		<div class="expandable-module <?php echo esc_attr( $args['class'] ); ?>" 
+			 x-data="{ 
+			 	configVisible: <?php echo $args['checked'] ? 'true' : 'false' ?>,
+			 	isCollapsed: true,
+			 	toggleId: '<?php echo esc_attr( $args['data_toggle'] ); ?>'
+			 }"
+			 data-expandable-module="<?php echo esc_attr( $args['data_toggle'] ); ?>">
 			<!-- Toggle Switch -->
 			<div class="module-toggle">
 				<?php echo self::render_switch( array(
@@ -564,7 +573,8 @@ class Components {
 					'checked' => $args['checked'],
 					'label' => $args['label'],
 					'class' => 'toggle-switch',
-					'data_toggle' => $args['data_toggle']
+					'data_toggle' => $args['data_toggle'],
+					'x_on_change' => 'configVisible = $event.target.checked'
 				) ); ?>
 				
 				<?php if ( ! empty( $args['description'] ) ) : ?>
@@ -576,7 +586,17 @@ class Components {
 
 			<!-- Configuration Fields -->
 			<?php if ( ! empty( $args['config_fields'] ) ) : ?>
-				<div class="config-fields-section" id="config-<?php echo esc_attr( $args['data_toggle'] ); ?>" data-toggle-target="<?php echo esc_attr( $args['data_toggle'] ); ?>">
+				<div class="config-fields-section" 
+					 id="config-<?php echo esc_attr( $args['data_toggle'] ); ?>" 
+					 data-toggle-target="<?php echo esc_attr( $args['data_toggle'] ); ?>"
+					 x-show="configVisible"
+					 x-transition:enter="transition ease-out duration-200"
+					 x-transition:enter-start="opacity-0 transform -translate-y-2"
+					 x-transition:enter-end="opacity-100 transform translate-y-0"
+					 x-transition:leave="transition ease-in duration-150"
+					 x-transition:leave-start="opacity-100 transform translate-y-0"
+					 x-transition:leave-end="opacity-0 transform -translate-y-2"
+					 :class="{ 'show': configVisible, 'collapsed': isCollapsed }">
 					<?php if ( ! empty( $args['config_title'] ) || ! empty( $args['config_description'] ) ) : ?>
 						<div class="config-header">
 							<?php if ( ! empty( $args['config_title'] ) ) : ?>
@@ -596,10 +616,21 @@ class Components {
 				</div>
 
 				<!-- Collapse/Expand Link - Outside the config-fields-section -->
-				<div class="config-collapse-link" id="collapse-<?php echo esc_attr( $args['data_toggle'] ); ?>" data-toggle-target="<?php echo esc_attr( $args['data_toggle'] ); ?>">
-					<a href="#" class="collapse-toggle" data-toggle="<?php echo esc_attr( $args['data_toggle'] ); ?>">
-						<span class="collapse-text">EXPAND</span>
-						<span class="collapse-icon">▼</span>
+				<div class="config-collapse-link" 
+					 id="collapse-<?php echo esc_attr( $args['data_toggle'] ); ?>" 
+					 data-toggle-target="<?php echo esc_attr( $args['data_toggle'] ); ?>"
+					 x-show="configVisible"
+					 x-transition:enter="transition ease-out duration-200"
+					 x-transition:enter-start="opacity-0"
+					 x-transition:enter-end="opacity-100"
+					 x-transition:leave="transition ease-in duration-150"
+					 x-transition:leave-start="opacity-100"
+					 x-transition:leave-end="opacity-0">
+					<a href="#" class="collapse-toggle" 
+					   data-toggle="<?php echo esc_attr( $args['data_toggle'] ); ?>" 
+					   @click.prevent="isCollapsed = !isCollapsed">
+						<span class="collapse-text" x-text="isCollapsed ? 'EXPAND' : 'COLLAPSE'"></span>
+						<span class="collapse-icon" x-text="isCollapsed ? '▼' : '▲'"></span>
 					</a>
 				</div>
 			<?php endif; ?>

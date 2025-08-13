@@ -13,10 +13,53 @@ namespace TinyWpModules\Modules\Elementor;
 class Widgets_Module {
 
 	/**
+	 * Widget registry
+	 *
+	 * @var array
+	 */
+	private $widgets = array();
+
+	/**
 	 * Initialize the module
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
+		$this->register_widgets();
+	}
+
+	/**
+	 * Register all available widgets
+	 */
+	private function register_widgets() {
+		$this->widgets = array(
+			'hero_section_widget' => array(
+				'class' => 'Hero_Section_Widget',
+				'file' => 'widgets/hero-section-widget.php'
+			),
+			'testimonials_widget' => array(
+				'class' => 'Testimonials_Widget',
+				'file' => 'widgets/testimonials-widget.php'
+			),
+			'pricing_table_widget' => array(
+				'class' => 'Pricing_Table_Widget',
+				'file' => 'widgets/pricing-table-widget.php'
+			),
+			'team_members_widget' => array(
+				'class' => 'Team_Members_Widget',
+				'file' => 'widgets/team-members-widget.php'
+			),
+			'countdown_timer_widget' => array(
+				'class' => 'Countdown_Timer_Widget',
+				'file' => 'widgets/countdown-timer-widget.php'
+			),
+			'progress_bars_widget' => array(
+				'class' => 'Progress_Bars_Widget',
+				'file' => 'widgets/progress-bars-widget.php'
+			)
+		);
+
+		// Allow other plugins/themes to register additional widgets
+		$this->widgets = apply_filters( 'tiny_wp_modules_elementor_widgets_registry', $this->widgets );
 	}
 
 	/**
@@ -28,8 +71,8 @@ class Widgets_Module {
 			return;
 		}
 
-		// Initialize widgets
-		$this->init_widgets();
+		// Initialize enabled widgets
+		$this->init_enabled_widgets();
 	}
 
 	/**
@@ -44,82 +87,58 @@ class Widgets_Module {
 	}
 
 	/**
-	 * Initialize individual widgets
+	 * Initialize only the enabled widgets
 	 */
-	private function init_widgets() {
+	private function init_enabled_widgets() {
 		$settings = get_option( 'tiny_wp_modules_settings', array() );
 
-		// Hero Section Widget
-		if ( isset( $settings['hero_section_widget'] ) && $settings['hero_section_widget'] ) {
-			$this->init_hero_section_widget();
-		}
-
-		// Testimonials Widget
-		if ( isset( $settings['testimonials_widget'] ) && $settings['testimonials_widget'] ) {
-			$this->init_testimonials_widget();
-		}
-
-		// Pricing Table Widget
-		if ( isset( $settings['pricing_table_widget'] ) && $settings['pricing_table_widget'] ) {
-			$this->init_pricing_table_widget();
-		}
-
-		// Team Members Widget
-		if ( isset( $settings['team_members_widget'] ) && $settings['team_members_widget'] ) {
-			$this->init_team_members_widget();
-		}
-
-		// Countdown Timer Widget
-		if ( isset( $settings['countdown_timer_widget'] ) && $settings['countdown_timer_widget'] ) {
-			$this->init_countdown_timer_widget();
-		}
-
-		// Progress Bars Widget
-		if ( isset( $settings['progress_bars_widget'] ) && $settings['progress_bars_widget'] ) {
-			$this->init_progress_bars_widget();
+		foreach ( $this->widgets as $widget_id => $widget_data ) {
+			if ( isset( $settings[ $widget_id ] ) && $settings[ $widget_id ] ) {
+				$this->init_widget( $widget_id, $widget_data );
+			}
 		}
 	}
 
 	/**
-	 * Initialize Hero Section Widget
+	 * Initialize a specific widget
+	 *
+	 * @param string $widget_id Widget ID.
+	 * @param array  $widget_data Widget configuration data.
 	 */
-	private function init_hero_section_widget() {
-		// Widget implementation would go here
-		// This is just a placeholder for demonstration
+	private function init_widget( $widget_id, $widget_data ) {
+		// Load the widget file if it exists
+		$this->load_widget_file( $widget_data['file'] );
 	}
 
 	/**
-	 * Initialize Testimonials Widget
+	 * Load widget file if it exists
+	 *
+	 * @param string $file_path Relative path to widget file.
 	 */
-	private function init_testimonials_widget() {
-		// Widget implementation would go here
+	private function load_widget_file( $file_path ) {
+		$full_path = plugin_dir_path( __FILE__ ) . $file_path;
+		if ( file_exists( $full_path ) ) {
+			require_once $full_path;
+		}
 	}
 
 	/**
-	 * Initialize Pricing Table Widget
+	 * Get registered widgets
+	 *
+	 * @return array Array of registered widgets.
 	 */
-	private function init_pricing_table_widget() {
-		// Widget implementation would go here
+	public function get_widgets() {
+		return $this->widgets;
 	}
 
 	/**
-	 * Initialize Team Members Widget
+	 * Check if a specific widget is enabled
+	 *
+	 * @param string $widget_id Widget ID.
+	 * @return bool True if enabled.
 	 */
-	private function init_team_members_widget() {
-		// Widget implementation would go here
-	}
-
-	/**
-	 * Initialize Countdown Timer Widget
-	 */
-	private function init_countdown_timer_widget() {
-		// Widget implementation would go here
-	}
-
-	/**
-	 * Initialize Progress Bars Widget
-	 */
-	private function init_progress_bars_widget() {
-		// Widget implementation would go here
+	public function is_widget_enabled( $widget_id ) {
+		$settings = get_option( 'tiny_wp_modules_settings', array() );
+		return isset( $settings[ $widget_id ] ) && $settings[ $widget_id ];
 	}
 }

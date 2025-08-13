@@ -111,12 +111,6 @@ class Ajax_Handler {
 	 * Save general settings via AJAX
 	 */
 	public function save_general_settings() {
-		// Debug logging
-		error_log('Tiny WP Modules: save_general_settings called');
-		error_log('Tiny WP Modules: POST data: ' . print_r($_POST, true));
-		error_log('Tiny WP Modules: Nonce received: ' . ($_POST['nonce'] ?? 'NOT SET'));
-		error_log('Tiny WP Modules: Expected nonce action: tiny_wp_modules_save_settings');
-		
 		// Check nonce - use the form nonce since this is called via form submission
 		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'tiny_wp_modules_save_settings' ) ) {
 			error_log('Tiny WP Modules: Nonce verification failed');

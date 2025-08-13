@@ -66,11 +66,11 @@ $settings = get_option( 'tiny_wp_modules_settings', array() );
 $tabs = Tab_Manager::get_tabs( $settings );
 ?>
 
-<div class="wrap">
+<div class="wrap" x-data="{ bannerVisible: true }">
 	<!-- Full Card Container -->
 	<div class="tiny-wp-modules-card-container">
 		<!-- Top Banner with Notifications -->
-		<div class="tiny-wp-modules-banner" id="tiny-wp-modules-banner">
+		<div class="tiny-wp-modules-banner" id="tiny-wp-modules-banner" x-show="bannerVisible">
 			<div class="banner-background">
 				<div class="banner-pattern"></div>
 				<div class="banner-shapes">
@@ -93,7 +93,7 @@ $tabs = Tab_Manager::get_tabs( $settings );
 						<p class="banner-text"><?php esc_html_e( 'Your WordPress site is ready to be enhanced with powerful modules and features.', 'tiny-wp-modules' ); ?></p>
 					</div>
 				</div>
-				<button class="banner-close" type="button" aria-label="<?php esc_attr_e( 'Close', 'tiny-wp-modules' ); ?>" id="banner-close-btn">
+				<button class="banner-close" type="button" aria-label="<?php esc_attr_e( 'Close', 'tiny-wp-modules' ); ?>" id="banner-close-btn" @click="bannerVisible = false; $el.closest('.tiny-wp-modules-banner').style.transition = 'opacity 0.3s ease'; $el.closest('.tiny-wp-modules-banner').style.opacity = '0'; setTimeout(() => $el.closest('.tiny-wp-modules-banner').remove(), 300)">
 					<img src="<?php echo esc_url( tiny_icon( 'close.svg' ) ); ?>" alt="<?php esc_attr_e( 'Close', 'tiny-wp-modules' ); ?>" class="close-icon">
 				</button>
 			</div>
@@ -106,8 +106,8 @@ $tabs = Tab_Manager::get_tabs( $settings );
 					<span class="notification-text"><?php esc_html_e( 'Settings saved successfully!', 'tiny-wp-modules' ); ?></span>
 					<button class="notification-close" type="button" aria-label="<?php esc_attr_e( 'Close', 'tiny-wp-modules' ); ?>">
 						<span class="dashicons dashicons-no-alt"></span>
-					</button>
-				</div>
+			</button>
+		</div>
 			</div>
 		<?php endif; ?>
 
@@ -127,8 +127,11 @@ $tabs = Tab_Manager::get_tabs( $settings );
 						<?php wp_nonce_field( 'tiny_wp_modules_save_settings', 'tiny_wp_modules_nonce' ); ?>
 						<input type="hidden" name="current_tab" value="<?php echo esc_attr( $current_tab ); ?>">
 						
+						<!-- Critical Settings - Always Include -->
+						<input type="hidden" name="tiny_wp_modules_settings[enable_elementor]" value="<?php echo isset( $settings['enable_elementor'] ) ? esc_attr( $settings['enable_elementor'] ) : '0'; ?>">
+						
 						<!-- Tab Content -->
-						<?php
+												<?php 
 						// Include the appropriate tab template
 						$tab_template_path = Tab_Manager::get_tab_template_path( $current_tab );
 						if ( ! empty( $tab_template_path ) && file_exists( $tab_template_path ) ) {

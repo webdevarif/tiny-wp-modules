@@ -1,191 +1,189 @@
 /**
  * Tiny WP Modules Admin JavaScript
- * Organized with proper initialization pattern
+ * Minimal JavaScript - using Alpine.js directives in HTML instead
  */
 
-(function($) {
-    'use strict';
+// Initialize Alpine.js when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Alpine.js
+    if (typeof Alpine !== 'undefined') {
+        Alpine.start();
+    }
+});
 
-
-
-    /**
-     * Tiny WP Modules Admin Class
-     */
-    var TinyWpModulesAdmin = {
-        
-            init: function() {
-        this.hideAllConfigSections();
-        this.initModuleToggles();
-        this.bindEvents();
-        this.handleBannerClose();
-    },
-
-            hideAllConfigSections: function() {
-            $('.config-fields-section').hide();
-        },
-
-        initModuleToggles: function() {
-            var self = this;
-            setTimeout(function() {
-                var checkboxes = $('[data-expandable-module] input[type="checkbox"]');
-                checkboxes.each(function() {
-                    var checkboxId = $(this).attr('id');
-                    self.handleModuleToggle(checkboxId);
-                });
-            }, 100);
-        },
-
-        bindEvents: function() {
-            var self = this;
-            
-            // Handle only main module toggle checkboxes (not child checkboxes)
-            $(document).on('change', '[data-expandable-module] input[type="checkbox"]', function() {
-                var checkboxId = $(this).attr('id');
-                self.handleModuleToggle(checkboxId);
-            });
-
-            // Handle collapse/expand link clicks
-            $(document).on('click', '.collapse-toggle', function(e) {
-                e.preventDefault();
-                self.handleCollapseToggle($(this));
-            });
-
-            			// Handle Elementor checkbox change to refresh page for tab visibility
-			$(document).on('change', '#enable_elementor', function() {
-				if ($(this).is(':checked')) {
-					// Show a message that the page will refresh
-					if (confirm('Elementor support has been enabled. The page will refresh to show the new Elementor tab.')) {
-						// Save the setting first before refreshing
-						var form = $(this).closest('form');
-						if (form.length) {
-							// Create a hidden input for the current tab if it doesn't exist
-							if (!form.find('input[name="current_tab"]').length) {
-								form.append('<input type="hidden" name="current_tab" value="general">');
-							}
-							
-							// Submit the form via AJAX to save the setting
-							var formData = new FormData(form[0]);
-							formData.append('action', 'save_general_settings');
-							// Use the form nonce instead of AJAX nonce
-							formData.append('nonce', form.find('input[name="tiny_wp_modules_nonce"]').val());
-							
-							// Debug logging
-							console.log('Form data being sent:');
-							for (var pair of formData.entries()) {
-								console.log(pair[0] + ': ' + pair[1]);
-							}
-							console.log('Nonce being sent:', tiny_wp_modules_ajax.nonce);
-							console.log('AJAX URL:', tiny_wp_modules_ajax.ajax_url);
-							
-							$.ajax({
-								url: tiny_wp_modules_ajax.ajax_url,
-								type: 'POST',
-								data: formData,
-								processData: false,
-								contentType: false,
-								success: function(response) {
-									if (response.success) {
-										// Setting saved successfully, now refresh the page
-										window.location.reload();
-									} else {
-										// Save failed, show error
-										alert('Failed to save setting. Please try again.');
-										// Uncheck the checkbox
-										$('#enable_elementor').prop('checked', false);
-									}
-								},
-								error: function() {
-									// AJAX failed, show error
-									alert('Failed to save setting. Please try again.');
-									// Uncheck the checkbox
-									$('#enable_elementor').prop('checked', false);
-								}
-							});
-						} else {
-							// No form found, just refresh (fallback)
-							window.location.reload();
-						}
-					} else {
-						// Uncheck if user cancels
-						$(this).prop('checked', false);
-					}
-				}
-			});
-
-			// Handle Elementor module toggles (show/hide items only)
-			$(document).on('change', '.module-switch', function() {
-				var moduleId = $(this).attr('id');
-				var isEnabled = $(this).is(':checked');
-				var moduleItems = $('#' + moduleId + '-items');
-				
-				// Show/hide items only
-				if (isEnabled) {
-					moduleItems.slideDown(200);
-				} else {
-					moduleItems.slideUp(200);
-				}
-			});
-        },
-
-        toggleModuleConfig: function(checkboxId, dataToggleTarget) {
-            var isEnabled = $('#' + checkboxId).is(':checked');
-            var configSection = $('#config-' + dataToggleTarget);
-            var collapseLink = $('#collapse-' + dataToggleTarget);
-            
-            if (isEnabled) {
-                configSection.show().addClass('show').addClass('collapsed');
-                collapseLink.show();
-                collapseLink.find('.collapse-text').text('EXPAND');
-                collapseLink.find('.collapse-icon').text('▼');
+/**
+ * Save Elementor setting via AJAX
+ */
+function saveElementorSetting(enabled) {
+    // Create form data
+    const formData = new FormData();
+    formData.append('action', 'save_elementor_setting');
+    formData.append('nonce', tiny_wp_modules_ajax.nonce);
+    formData.append('setting_id', 'enable_elementor');
+    formData.append('setting_value', enabled ? '1' : '0');
+    
+    // Send AJAX request
+    fetch(tiny_wp_modules_ajax.ajax_url, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Success - update the UI without page reload
+            if (enabled) {
+                // Show success message
+                showNotification('Elementor support enabled successfully!', 'success');
+                
+                // Add Elementor tab to sidebar if it doesn't exist
+                addElementorTab();
+                
+                // Switch to Elementor tab
+                setTimeout(() => {
+                    switchToTab('elementor');
+                }, 500);
             } else {
-                configSection.hide().removeClass('show').removeClass('collapsed');
-                collapseLink.hide();
+                showNotification('Elementor support disabled.', 'info');
+                
+                // Remove Elementor tab from sidebar
+                removeElementorTab();
             }
-        },
-
-        handleModuleToggle: function(checkboxId) {
-            var checkbox = $('#' + checkboxId);
-            var expandableModule = checkbox.closest('[data-expandable-module]');
-            var dataToggle = expandableModule.attr('data-expandable-module');
-            
-            if (dataToggle) {
-                this.toggleModuleConfig(checkboxId, dataToggle);
+        } else {
+            // Error - revert the switch
+            const switchElement = document.querySelector('#enable_elementor');
+            if (switchElement) {
+                switchElement.checked = !enabled;
             }
-        },
-        
-
-
-        handleCollapseToggle: function(toggleElement) {
-            var toggleId = toggleElement.attr('data-toggle');
-            var configSection = $('#config-' + toggleId);
-            var collapseText = toggleElement.find('.collapse-text');
-            var collapseIcon = toggleElement.find('.collapse-icon');
-            
-            if (configSection.hasClass('collapsed')) {
-                // Expand
-                configSection.removeClass('collapsed');
-                collapseText.text('COLLAPSE');
-                collapseIcon.text('▲');
-            } else {
-                // Collapse
-                configSection.addClass('collapsed');
-                collapseText.text('EXPAND');
-                collapseIcon.text('▼');
-            }
-        },
-
-        handleBannerClose: function() {
-            $(document).on('click', '.banner-close, #banner-close-btn', function() {
-                var banner = $('#tiny-wp-modules-banner');
-                banner.fadeOut(300, function() {
-                    banner.remove();
-                });
-            });
+            showNotification(result.data || 'Failed to save setting. Please try again.', 'error');
         }
-    };
-
-    $(document).ready(function() {
-        TinyWpModulesAdmin.init();
+    })
+    .catch(error => {
+        console.error('AJAX error:', error);
+        
+        // Revert the switch on error
+        const switchElement = document.querySelector('#enable_elementor');
+        if (switchElement) {
+            switchElement.checked = !enabled;
+        }
+        showNotification('Failed to save setting. Please try again.', 'error');
     });
+}
 
-})(jQuery); 
+/**
+ * Add Elementor tab to sidebar
+ */
+function addElementorTab() {
+    const sidebar = document.querySelector('.nav-menu');
+    if (!sidebar) return;
+    
+    // Check if Elementor tab already exists
+    if (document.querySelector('#elementor-tab-nav')) return;
+    
+    // Create Elementor tab
+    const elementorTab = document.createElement('li');
+    elementorTab.className = 'nav-menu-item';
+    elementorTab.id = 'elementor-tab-nav';
+    
+    elementorTab.innerHTML = `
+        <a href="#elementor" class="nav-menu-link" data-tab="elementor">
+            <span class="nav-menu-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            <span class="nav-menu-label">Elementor</span>
+        </a>
+    `;
+    
+    // Add click event
+    elementorTab.querySelector('.nav-menu-link').addEventListener('click', function(e) {
+        e.preventDefault();
+        switchToTab('elementor');
+    });
+    
+    // Insert after General tab
+    const generalTab = sidebar.querySelector('[data-tab="general"]');
+    if (generalTab) {
+        generalTab.parentNode.insertBefore(elementorTab, generalTab.nextSibling);
+    } else {
+        sidebar.appendChild(elementorTab);
+    }
+}
+
+/**
+ * Remove Elementor tab from sidebar
+ */
+function removeElementorTab() {
+    const elementorTab = document.querySelector('#elementor-tab-nav');
+    if (elementorTab) {
+        elementorTab.remove();
+    }
+    
+    // Switch to general tab if currently on elementor tab
+    const currentTab = document.querySelector('.tab-content.active');
+    if (currentTab && currentTab.id === 'elementor-tab') {
+        switchToTab('general');
+    }
+}
+
+/**
+ * Switch to specific tab
+ */
+function switchToTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all nav items
+    document.querySelectorAll('.nav-menu-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Show target tab content
+    const targetTab = document.querySelector(`#${tabName}-tab`);
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
+    
+    // Activate target nav item
+    const targetNav = document.querySelector(`[data-tab="${tabName}"]`);
+    if (targetNav) {
+        targetNav.parentNode.classList.add('active');
+    }
+}
+
+/**
+ * Show notification
+ */
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notice notice-${type} is-dismissible`;
+    notification.innerHTML = `
+        <p>${message}</p>
+        <button type="button" class="notice-dismiss">
+            <span class="screen-reader-text">Dismiss this notice.</span>
+        </button>
+    `;
+    
+    // Add dismiss functionality
+    notification.querySelector('.notice-dismiss').addEventListener('click', function() {
+        notification.remove();
+    });
+    
+    // Insert at top of page
+    const firstElement = document.querySelector('.wrap h1');
+    if (firstElement) {
+        firstElement.parentNode.insertBefore(notification, firstElement.nextSibling);
+    }
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+} 
