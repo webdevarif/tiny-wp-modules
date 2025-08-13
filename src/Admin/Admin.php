@@ -207,6 +207,44 @@ class Admin {
 	}
 
 	/**
+	 * Enqueue Elementor assets
+	 */
+	public function enqueue_elementor_assets() {
+		// Only enqueue if Elementor is active
+		if ( ! defined( 'ELEMENTOR_VERSION' ) ) {
+			return;
+		}
+
+		// Enqueue Elementor widget styles
+		wp_enqueue_style(
+			$this->plugin_name . '-elementor-widgets',
+			TINY_WP_MODULES_PLUGIN_URL . 'assets/css/elementor-widgets.css',
+			array(),
+			$this->version,
+			'all'
+		);
+
+		// Enqueue Elementor widget scripts
+		wp_enqueue_script(
+			$this->plugin_name . '-elementor-widgets',
+			TINY_WP_MODULES_PLUGIN_URL . 'assets/js/elementor-widgets.js',
+			array( 'jquery' ),
+			$this->version,
+			true
+		);
+
+		// Localize script for AJAX
+		wp_localize_script(
+			$this->plugin_name . '-elementor-widgets',
+			'tiny_faq_ajax',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'tiny_faq_ajax_nonce' ),
+			)
+		);
+	}
+
+	/**
 	 * Add admin menu
 	 */
 	public function add_admin_menu() {

@@ -18,6 +18,7 @@ use TinyWpModules\Advanced\Redirect_After_Logout;
 use TinyWpModules\Advanced\Redirect_404;
 use TinyWpModules\Advanced\Password_Protection;
 use TinyWpModules\Advanced\SVG_Upload;
+use TinyWpModules\Elementor\Widget_Manager;
 
 /**
  * Main Plugin Class
@@ -104,6 +105,9 @@ class Plugin {
 		$this->redirect_404 = new Redirect_404();
 		$this->password_protection = new Password_Protection();
 		$this->svg_upload = new SVG_Upload();
+
+		// Initialize Elementor integration
+		$this->elementor_widget_manager = Widget_Manager::get_instance();
 	}
 
 	/**
@@ -124,6 +128,7 @@ class Plugin {
 		$this->loader->add_action( 'admin_menu', $this->admin, 'add_admin_menu' );
 		$this->loader->add_action( 'admin_init', $this->admin, 'init_settings' );
 		$this->loader->add_action( 'admin_init', $this->admin, 'handle_settings_submission' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $this->admin, 'enqueue_elementor_assets' );
 	}
 
 	/**
