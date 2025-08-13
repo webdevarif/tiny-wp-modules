@@ -53,6 +53,7 @@ class Settings {
 					'enable_modules' => '1',
 					'debug_mode' => '0',
 					'enable_faq' => '0',
+					'enable_elementor' => '0',
 				),
 			)
 		);
@@ -63,6 +64,7 @@ class Settings {
 				'enable_modules' => '1',
 				'debug_mode' => '0',
 				'enable_faq' => '0',
+				'enable_elementor' => '0',
 			) );
 		}
 	}
@@ -84,6 +86,61 @@ class Settings {
 
 		// Sanitize FAQ settings
 		$sanitized['enable_faq'] = isset( $input['enable_faq'] ) ? '1' : '0';
+
+		// Sanitize Elementor settings
+		$sanitized['enable_elementor'] = isset( $input['enable_elementor'] ) ? '1' : '0';
+		
+		// Sanitize Elementor module settings
+		$elementor_modules = array(
+			'elementor_widgets',
+			'elementor_tags',
+			'elementor_woocommerce'
+		);
+		
+		foreach ( $elementor_modules as $module ) {
+			$sanitized[ $module ] = isset( $input[ $module ] ) ? '1' : '0';
+		}
+		
+		// Sanitize Elementor widget settings
+		$widget_items = array(
+			'hero_section_widget',
+			'testimonials_widget',
+			'pricing_table_widget',
+			'team_members_widget',
+			'countdown_timer_widget',
+			'progress_bars_widget'
+		);
+		
+		foreach ( $widget_items as $widget ) {
+			$sanitized[ $widget ] = isset( $input[ $widget ] ) ? '1' : '0';
+		}
+		
+		// Sanitize Elementor tag settings
+		$tag_items = array(
+			'user_info_tag',
+			'post_meta_tag',
+			'site_info_tag',
+			'custom_fields_tag',
+			'query_loop_tag'
+		);
+		
+		foreach ( $tag_items as $tag ) {
+			$sanitized[ $tag ] = isset( $input[ $tag ] ) ? '1' : '0';
+		}
+		
+		// Sanitize Elementor WooCommerce settings
+		$woocommerce_items = array(
+			'product_grid_widget',
+			'product_carousel_widget',
+			'category_showcase_widget',
+			'cart_summary_widget',
+			'wishlist_widget',
+			'product_comparison_widget'
+		);
+		
+		foreach ( $woocommerce_items as $item ) {
+			$sanitized[ $item ] = isset( $input[ $item ] ) ? '1' : '0';
+		}
 		
 		if ( isset( $input['faq_label'] ) ) {
 			$sanitized['faq_label'] = sanitize_text_field( $input['faq_label'] );

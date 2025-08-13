@@ -890,13 +890,17 @@
 }
 
 .nav-menu-item.active {
-	background: var(--tiny-bg-primary);
+	background: var(--tiny-bg-light);
 	color: var(--tiny-primary-color);
 	font-weight: var(--tiny-font-weight-medium);
 	position: relative;
-	border-left: var(--tiny-border-left-width) solid var(--tiny-primary-color);
+	border-left: 3px solid var(--tiny-primary-color);
 	padding-left: 21px; /* 25px - 4px border */
-	background-color: rgb(0 115 170 / 7%);
+}
+
+/* Hover effect for active tab */
+.nav-menu-item:hover {
+	background: var(--tiny-bg-secondary);
 }
 
 .nav-menu-item .dashicons {
@@ -911,13 +915,7 @@
 	margin-right: var(--tiny-spacing-md);
 	width: 20px;
 	height: 20px;
-	filter: brightness(0.6);
 	transition: var(--tiny-transition-fast);
-}
-
-.nav-menu-item:hover .nav-menu-icon,
-.nav-menu-item.active .nav-menu-icon {
-	filter: brightness(1);
 }
 
 .header-icon-img {
@@ -967,6 +965,13 @@
 	color: var(--tiny-text-light);
 	width: var(--tiny-font-size-xl);
 	height: var(--tiny-font-size-xl);
+}
+
+/* Header SVG Icon Styling */
+.header-icon .tab-icon-svg {
+	width: 24px;
+	height: 24px;
+	color: var(--tiny-primary-color);
 }
 
 .header-text h2 {
@@ -1591,3 +1596,212 @@ input:checked + .tiny-wp-modules-slider:before {
 	padding: 8px 16px;
 	font-size: var(--tiny-font-size-sm);
 } 
+
+
+
+/* Custom Icon Styling */
+.nav-menu-item .nav-menu-icon {
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+/* Elementor Save Section */
+.elementor-save-section {
+	margin-top: var(--tiny-spacing-xl);
+	padding-top: var(--tiny-spacing-lg);
+	border-top: 1px solid var(--tiny-border-light);
+	text-align: center;
+}
+
+.elementor-save-button {
+	padding: var(--tiny-spacing-md) var(--tiny-spacing-xl) !important;
+	font-size: var(--tiny-font-size-md) !important;
+	font-weight: var(--tiny-font-weight-medium) !important;
+	height: auto !important;
+	line-height: 1.4 !important;
+}
+
+.elementor-save-button .dashicons {
+	margin-right: var(--tiny-spacing-xs);
+	vertical-align: middle;
+}
+
+/* Elementor Modules Grid System */
+.elementor-modules-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--tiny-spacing-lg);
+	margin-bottom: var(--tiny-spacing-xxl);
+}
+
+
+
+.elementor-module-card {
+	background: var(--tiny-bg-primary);
+	border: 1px solid var(--tiny-border-light);
+	border-radius: var(--tiny-border-radius-lg);
+	padding: var(--tiny-spacing-lg);
+	transition: all var(--tiny-transition-fast);
+}
+
+.elementor-module-card:hover {
+	border-color: var(--tiny-primary-color);
+	box-shadow: 0 4px 12px rgba(0, 115, 170, 0.1);
+}
+
+.module-header {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--tiny-spacing-md);
+	margin-bottom: var(--tiny-spacing-lg);
+}
+
+.module-icon {
+	width: 40px;
+	height: 40px;
+	background: var(--tiny-bg-secondary);
+	border-radius: var(--tiny-border-radius-md);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.module-icon .dashicons {
+	font-size: 20px;
+	color: var(--tiny-primary-color);
+}
+
+.module-info {
+	flex: 1;
+}
+
+.module-info h3 {
+	margin: 0 0 var(--tiny-spacing-xs) 0;
+	font-size: var(--tiny-font-size-lg);
+	font-weight: var(--tiny-font-weight-semibold);
+	color: var(--tiny-text-primary);
+}
+
+.module-info p {
+	margin: 0;
+	font-size: var(--tiny-font-size-sm);
+	color: var(--tiny-text-secondary);
+	line-height: 1.4;
+}
+
+.module-toggle {
+	margin-left: auto;
+}
+
+.module-items {
+	margin-top: var(--tiny-spacing-lg);
+	padding-top: var(--tiny-spacing-lg);
+	border-top: 1px solid var(--tiny-border-light);
+}
+
+.items-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: var(--tiny-spacing-md);
+}
+
+.item-card {
+	background: var(--tiny-bg-secondary);
+	border: 1px solid var(--tiny-border-light);
+	border-radius: var(--tiny-border-radius-md);
+	padding: var(--tiny-spacing-md);
+	transition: all var(--tiny-transition-fast);
+}
+
+.item-card:hover {
+	border-color: var(--tiny-primary-color);
+	background: var(--tiny-bg-light);
+}
+
+.item-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: var(--tiny-spacing-xs);
+}
+
+.item-header h4 {
+	margin: 0;
+	font-size: var(--tiny-font-size-md);
+	font-weight: var(--tiny-font-weight-medium);
+	color: var(--tiny-text-primary);
+}
+
+.item-category {
+	font-size: var(--tiny-font-size-xs);
+	color: var(--tiny-text-muted);
+	background: var(--tiny-bg-light);
+	padding: 2px 8px;
+	border-radius: var(--tiny-border-radius-sm);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.item-description {
+	margin: 0 0 var(--tiny-spacing-sm) 0;
+	font-size: var(--tiny-font-size-sm);
+	color: var(--tiny-text-secondary);
+	line-height: 1.4;
+}
+
+.item-toggle {
+	text-align: right;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+	.elementor-modules-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 768px) {
+	.elementor-modules-grid {
+		grid-template-columns: 1fr;
+	}
+	
+	.items-grid {
+		grid-template-columns: 1fr;
+	}
+	
+	.module-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	
+	.module-toggle {
+		margin-left: 0;
+		margin-top: var(--tiny-spacing-sm);
+	}
+}
+
+/* SVG Icon Styling */
+.nav-menu-item .nav-menu-icon .tab-icon-svg {
+	width: 20px;
+	height: 20px;
+	color: var(--tiny-text-secondary);
+	transition: color var(--tiny-transition-fast);
+}
+
+/* Custom Icon Active State */
+.nav-menu-item.active .nav-menu-icon .tab-icon-svg {
+	color: var(--tiny-primary-color);
+}
+
+/* Hover state for icons */
+.nav-menu-item:hover .nav-menu-icon .tab-icon-svg {
+	color: var(--tiny-primary-color);
+}
+
+
+
+
+

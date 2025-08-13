@@ -6,39 +6,24 @@
 (function($) {
     'use strict';
 
-    console.log('Tiny WP Modules: admin.js loaded successfully');
 
-    // Check if jQuery is available
-    if (typeof $ === 'undefined') {
-        console.warn('Tiny WP Modules: jQuery is not available');
-        return;
-    }
 
     /**
      * Tiny WP Modules Admin Class
      */
     var TinyWpModulesAdmin = {
         
-        /**
-         * Initialize the admin functionality
-         */
-        init: function() {
-            this.hideAllConfigSections();
-            this.initModuleToggles();
-            this.bindEvents();
-            this.handleBannerClose();
-        },
+            init: function() {
+        this.hideAllConfigSections();
+        this.initModuleToggles();
+        this.bindEvents();
+        this.handleBannerClose();
+    },
 
-        /**
-         * Hide all config sections by default
-         */
-        hideAllConfigSections: function() {
+            hideAllConfigSections: function() {
             $('.config-fields-section').hide();
         },
 
-        /**
-         * Initialize all module toggles
-         */
         initModuleToggles: function() {
             var self = this;
             setTimeout(function() {
@@ -50,9 +35,6 @@
             }, 100);
         },
 
-        /**
-         * Bind all event listeners
-         */
         bindEvents: function() {
             var self = this;
             
@@ -67,11 +49,84 @@
                 e.preventDefault();
                 self.handleCollapseToggle($(this));
             });
+
+            			// Handle Elementor checkbox change to refresh page for tab visibility
+			$(document).on('change', '#enable_elementor', function() {
+				if ($(this).is(':checked')) {
+					// Show a message that the page will refresh
+					if (confirm('Elementor support has been enabled. The page will refresh to show the new Elementor tab.')) {
+						// Save the setting first before refreshing
+						var form = $(this).closest('form');
+						if (form.length) {
+							// Create a hidden input for the current tab if it doesn't exist
+							if (!form.find('input[name="current_tab"]').length) {
+								form.append('<input type="hidden" name="current_tab" value="general">');
+							}
+							
+							// Submit the form via AJAX to save the setting
+							var formData = new FormData(form[0]);
+							formData.append('action', 'save_general_settings');
+							// Use the form nonce instead of AJAX nonce
+							formData.append('nonce', form.find('input[name="tiny_wp_modules_nonce"]').val());
+							
+							// Debug logging
+							console.log('Form data being sent:');
+							for (var pair of formData.entries()) {
+								console.log(pair[0] + ': ' + pair[1]);
+							}
+							console.log('Nonce being sent:', tiny_wp_modules_ajax.nonce);
+							console.log('AJAX URL:', tiny_wp_modules_ajax.ajax_url);
+							
+							$.ajax({
+								url: tiny_wp_modules_ajax.ajax_url,
+								type: 'POST',
+								data: formData,
+								processData: false,
+								contentType: false,
+								success: function(response) {
+									if (response.success) {
+										// Setting saved successfully, now refresh the page
+										window.location.reload();
+									} else {
+										// Save failed, show error
+										alert('Failed to save setting. Please try again.');
+										// Uncheck the checkbox
+										$('#enable_elementor').prop('checked', false);
+									}
+								},
+								error: function() {
+									// AJAX failed, show error
+									alert('Failed to save setting. Please try again.');
+									// Uncheck the checkbox
+									$('#enable_elementor').prop('checked', false);
+								}
+							});
+						} else {
+							// No form found, just refresh (fallback)
+							window.location.reload();
+						}
+					} else {
+						// Uncheck if user cancels
+						$(this).prop('checked', false);
+					}
+				}
+			});
+
+			// Handle Elementor module toggles (show/hide items only)
+			$(document).on('change', '.module-switch', function() {
+				var moduleId = $(this).attr('id');
+				var isEnabled = $(this).is(':checked');
+				var moduleItems = $('#' + moduleId + '-items');
+				
+				// Show/hide items only
+				if (isEnabled) {
+					moduleItems.slideDown(200);
+				} else {
+					moduleItems.slideUp(200);
+				}
+			});
         },
 
-        /**
-         * Generic function to handle module configuration visibility
-         */
         toggleModuleConfig: function(checkboxId, dataToggleTarget) {
             var isEnabled = $('#' + checkboxId).is(':checked');
             var configSection = $('#config-' + dataToggleTarget);
@@ -88,9 +143,6 @@
             }
         },
 
-        /**
-         * Generic function to handle all module toggles
-         */
         handleModuleToggle: function(checkboxId) {
             var checkbox = $('#' + checkboxId);
             var expandableModule = checkbox.closest('[data-expandable-module]');
@@ -98,14 +150,11 @@
             
             if (dataToggle) {
                 this.toggleModuleConfig(checkboxId, dataToggle);
-            } else {
-                console.warn('Tiny WP Modules: No data-expandable-module found for checkbox:', checkboxId);
             }
         },
+        
 
-        /**
-         * Handle collapse/expand toggle clicks
-         */
+
         handleCollapseToggle: function(toggleElement) {
             var toggleId = toggleElement.attr('data-toggle');
             var configSection = $('#config-' + toggleId);
@@ -125,9 +174,6 @@
             }
         },
 
-        /**
-         * Handle banner close button
-         */
         handleBannerClose: function() {
             $(document).on('click', '.banner-close, #banner-close-btn', function() {
                 var banner = $('#tiny-wp-modules-banner');
@@ -138,11 +184,8 @@
         }
     };
 
-            /**
-         * Initialize when document is ready
-         */
-        $(document).ready(function() {
-            TinyWpModulesAdmin.init();
-        });
+    $(document).ready(function() {
+        TinyWpModulesAdmin.init();
+    });
 
 })(jQuery); 
