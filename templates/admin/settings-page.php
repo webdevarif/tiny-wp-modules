@@ -96,6 +96,11 @@ $tabs = Tab_Manager::get_tabs( $settings );
 		</div>
 		
 		<!-- Success Notification -->
+		<?php 
+		// Debug: Check if settings-updated parameter is received
+		error_log( 'Tiny WP Modules Template: $_GET contents: ' . print_r( $_GET, true ) );
+		error_log( 'Tiny WP Modules Template: settings-updated value: ' . ( $_GET['settings-updated'] ?? 'not set' ) );
+		?>
 		<?php if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] === 'true' ) : ?>
 			<div class="tiny-wp-modules-notification success">
 				<div class="notification-content">
@@ -119,9 +124,15 @@ $tabs = Tab_Manager::get_tabs( $settings );
 
 				<!-- Settings Table -->
 				<div class="settings-table-container">
-					<form method="post" action="" id="tiny-wp-modules-settings-form">
+					<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>" id="tiny-wp-modules-settings-form">
+						<input type="hidden" name="action" value="tiny_wp_modules_save_settings">
 						<?php wp_nonce_field( 'tiny_wp_modules_save_settings', 'tiny_wp_modules_nonce' ); ?>
 						<input type="hidden" name="current_tab" value="<?php echo esc_attr( $current_tab ); ?>">
+						
+						<!-- Debug: Show form action -->
+						<div style="background: #f0f0f0; padding: 5px; margin: 5px 0; font-size: 12px; border: 1px solid #ccc;">
+							<strong>Debug:</strong> Form action: <?php echo admin_url( 'admin-post.php' ); ?>
+						</div>
 						
 						<!-- Critical Settings - Always Include -->
 						<input type="hidden" name="tiny_wp_modules_settings[enable_elementor]" value="<?php echo isset( $settings['enable_elementor'] ) ? esc_attr( $settings['enable_elementor'] ) : '0'; ?>">

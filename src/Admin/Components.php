@@ -108,6 +108,7 @@ class Components {
 		
 		// Handle text type with base_url
 		if ( $type === 'text' && isset( $args['base_url'] ) ) {
+			ob_start();
 			echo '<div class="redirect-url-row">';
 			echo '<span class="base-url">' . esc_html( $args['base_url'] ) . '</span>';
 			echo '<input type="text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="' . esc_attr( $class ) . '" />';
@@ -127,6 +128,7 @@ class Components {
 		
 		// Handle password type
 		if ( $type === 'password' ) {
+			ob_start();
 			echo '<div class="redirect-url-row">';
 			echo '<span class="base-url">Password:</span>';
 			echo '<input type="password" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="' . esc_attr( $class ) . '" />';
@@ -139,6 +141,7 @@ class Components {
 			$roles = self::get_available_user_roles();
 			$selected_roles = is_array( $args['value'] ) ? $args['value'] : array();
 			
+			ob_start();
 			echo '<div class="user-roles-container">';
 			echo '<div class="user-roles-grid">';
 			
@@ -166,6 +169,7 @@ class Components {
 			$roles = self::get_available_user_roles();
 			$selected_roles = is_array( $args['value'] ) ? $args['value'] : array();
 			
+			ob_start();
 			echo '<div class="user-roles-container">';
 			
 			// Show base URL, input field, and "for:" text for redirect fields
@@ -204,6 +208,74 @@ class Components {
 			return ob_get_clean();
 		}
 		
+		// Handle radio type
+		if ( $type === 'radio' ) {
+			ob_start();
+			if ( ! empty( $args['label'] ) ) {
+				echo '<label class="field-label">' . esc_html( $args['label'] ) . '</label>';
+			}
+			
+			echo '<div class="radio-options">';
+			
+			foreach ( $args['options'] as $option_value => $option_label ) {
+				$checked = ( $args['value'] === $option_value ) ? 'checked' : '';
+				$option_id = $args['id'] . '_' . sanitize_title( $option_value );
+				
+				echo '<div class="radio-option">';
+				echo '<input type="radio" id="' . esc_attr( $option_id ) . '" name="' . esc_attr( $args['name'] ) . '" value="' . esc_attr( $option_value ) . '" ' . $checked . ' />';
+				echo '<label for="' . esc_attr( $option_id ) . '">' . esc_html( $option_label ) . '</label>';
+				echo '</div>';
+			}
+			
+			echo '</div>';
+			
+			if ( ! empty( $args['description'] ) ) {
+				echo '<p class="description">' . esc_html( $args['description'] ) . '</p>';
+			}
+			return ob_get_clean();
+		}
+		
+		// Handle select type
+		if ( $type === 'select' ) {
+			ob_start();
+			if ( ! empty( $args['label'] ) ) {
+				echo '<label for="' . esc_attr( $args['id'] ) . '">' . esc_html( $args['label'] ) . '</label>';
+			}
+			
+			echo '<select id="' . esc_attr( $args['id'] ) . '" name="' . esc_attr( $args['name'] ) . '" class="' . esc_attr( $args['class'] ) . '">';
+			
+			foreach ( $args['options'] as $option_value => $option_label ) {
+				$selected = ( $args['value'] === $option_value ) ? 'selected' : '';
+				echo '<option value="' . esc_attr( $option_value ) . '" ' . $selected . '>' . esc_html( $option_label ) . '</option>';
+			}
+			
+			echo '</select>';
+			
+			if ( ! empty( $args['description'] ) ) {
+				echo '<p class="description">' . esc_html( $args['description'] ) . '</p>';
+			}
+			
+			return ob_get_clean();
+		}
+		
+		// Handle number type
+		if ( $type === 'number' ) {
+			ob_start();
+			if ( ! empty( $args['label'] ) ) {
+				echo '<label for="' . esc_attr( $args['id'] ) . '">' . esc_html( $args['label'] ) . '</label>';
+			}
+			
+			echo '<input type="number" id="' . esc_attr( $args['id'] ) . '" name="' . esc_attr( $args['name'] ) . '" value="' . esc_attr( $args['value'] ) . '" placeholder="' . esc_attr( $args['placeholder'] ) . '" class="' . esc_attr( $args['class'] ) . '" min="0" step="1" />';
+			
+			if ( ! empty( $args['description'] ) ) {
+				echo '<p class="description">' . esc_html( $args['description'] ) . '</p>';
+			}
+			
+			return ob_get_clean();
+		}
+		
+		// Handle default input types (text, password, etc.) and textarea
+		ob_start();
 		?>
 		<?php if ( ! empty( $args['label'] ) ) : ?>
 			<label for="<?php echo $id; ?>"><?php echo esc_html( $args['label'] ); ?></label>

@@ -23,21 +23,22 @@ class SVG_Upload {
 			return;
 		}
 
-		// Set up global variable for SVG upload roles (matching working plugin)
-		global $roles_svg_upload_enabled;
-		$enable_svg_upload = $settings['enable_svg_upload'];
-		$for_roles = isset( $settings['svg_upload_roles'] ) ? $settings['svg_upload_roles'] : array();
+		// Get SVG upload roles from settings
+		$svg_upload_roles = isset( $settings['svg_upload_roles'] ) ? $settings['svg_upload_roles'] : array();
 		
-		// User has role(s). Do further checks.
-		if ( isset( $for_roles ) && count( $for_roles ) > 0 ) {
-			// Assemble single-dimensional array of roles for which SVG upload would be enabled
-			$roles_svg_upload_enabled = array();
-			foreach ( $for_roles as $role_slug => $svg_upload_enabled ) {
-				if ( $svg_upload_enabled ) {
+		// Build array of enabled roles
+		$roles_svg_upload_enabled = array();
+		if ( is_array( $svg_upload_roles ) ) {
+			foreach ( $svg_upload_roles as $role_slug => $enabled ) {
+				if ( $enabled === '1' || $enabled === true || $enabled === 1 ) {
 					$roles_svg_upload_enabled[] = $role_slug;
 				}
 			}
 		}
+		
+		// Store in global variable for compatibility
+		global $roles_svg_upload_enabled;
+		$GLOBALS['roles_svg_upload_enabled'] = $roles_svg_upload_enabled;
 
 		// Add hooks for SVG upload functionality (matching working plugin)
 		add_filter( 'upload_mimes', array( $this, 'add_svg_mime' ) );

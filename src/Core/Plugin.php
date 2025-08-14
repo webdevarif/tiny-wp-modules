@@ -18,6 +18,10 @@ use TinyWpModules\Advanced\Redirect_After_Logout;
 use TinyWpModules\Advanced\Redirect_404;
 use TinyWpModules\Advanced\Password_Protection;
 use TinyWpModules\Advanced\SVG_Upload;
+use TinyWpModules\Advanced\AVIF_Upload;
+use TinyWpModules\Advanced\Image_Upload_Control;
+use TinyWpModules\Advanced\Login_ID_Type;
+use TinyWpModules\Advanced\Maintenance_Mode;
 use TinyWpModules\Modules\Elementor\Widgets_Module;
 
 /**
@@ -117,6 +121,34 @@ class Plugin {
 	private $svg_upload;
 
 	/**
+	 * AVIF Upload Module
+	 *
+	 * @var AVIF_Upload
+	 */
+	private $avif_upload;
+
+	/**
+	 * Image Upload Control Module
+	 *
+	 * @var Image_Upload_Control
+	 */
+	private $image_upload_control;
+
+	/**
+	 * Login ID Type Module
+	 *
+	 * @var Login_ID_Type
+	 */
+	private $login_id_type;
+
+	/**
+	 * Maintenance Mode Module
+	 *
+	 * @var Maintenance_Mode
+	 */
+	private $maintenance_mode;
+
+	/**
 	 * Elementor Widget Manager
 	 *
 	 * @var Widgets_Module
@@ -153,6 +185,12 @@ class Plugin {
 		$this->admin = new Admin( $this->get_plugin_name(), $this->get_version() );
 		$this->public = new Public_Handler( $this->get_plugin_name(), $this->get_version() );
 		
+		// Ensure Settings_Config is loaded before other classes that depend on it
+		if ( ! class_exists( 'TinyWpModules\\Admin\\Settings_Config' ) ) {
+			// This should not happen with proper autoloading, but just in case
+			require_once plugin_dir_path( __FILE__ ) . '../Admin/Settings_Config.php';
+		}
+		
 		// Initialize modules
 		$this->faq_module = new FAQ_Module();
 		$this->change_login_url = new Change_Login_URL();
@@ -161,6 +199,10 @@ class Plugin {
 		$this->redirect_404 = new Redirect_404();
 		$this->password_protection = new Password_Protection();
 		$this->svg_upload = new SVG_Upload();
+		$this->avif_upload = new AVIF_Upload();
+		$this->image_upload_control = new Image_Upload_Control();
+		$this->login_id_type = new Login_ID_Type();
+		$this->maintenance_mode = new Maintenance_Mode();
 
 		// Initialize Elementor integration
 		$this->elementor_widget_manager = new Widgets_Module();

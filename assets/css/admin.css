@@ -1813,11 +1813,8 @@ input:checked + .tiny-wp-modules-slider:before {
 .section-header {
 	padding: var(--tiny-spacing-xl) var(--tiny-spacing-lg);
 	text-align: left;
-	border-left: 4px solid var(--tiny-primary-color);
 	background: var(--tiny-bg-primary);
-	margin: var(--tiny-spacing-lg) 0;
-	border-radius: var(--tiny-border-radius-md);
-	box-shadow: var(--tiny-shadow-sm);
+	border-bottom: 1px solid var(--tiny-border-light);
 }
 
 .section-header h3 {
@@ -1846,4 +1843,76 @@ input:checked + .tiny-wp-modules-slider:before {
 	.section-header h3 {
 		font-size: var(--tiny-font-size-md);
 	}
+}
+
+/* Login ID Type Radio Buttons */
+.radio-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.radio-options > .radio-option {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.radio-options > .radio-option input[type="radio"] {
+	margin: 0;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+}
+
+.radio-options > .radio-option label {
+	margin: 0;
+	font-weight: normal;
+	cursor: pointer;
+	color: var(--tiny-text-primary);
+	font-size: var(--tiny-font-size-sm);
+}
+
+/* Field label styling */
+.login-id-type-radio .field-label {
+	display: block;
+	font-weight: var(--tiny-font-weight-medium);
+	color: var(--tiny-text-primary);
+	margin-bottom: 8px;
+	font-size: var(--tiny-font-size-sm);
+}
+
+/* Description styling */
+.login-id-type-radio .description {
+	margin-top: 8px;
+	color: var(--tiny-text-secondary);
+	font-size: var(--tiny-font-size-xs);
+	line-height: 1.4;
+}
+
+/* Maintenance Mode Module Styling */
+.maintenance-mode-module .config-field {
+	background: var(--tiny-bg-secondary);
+	border: 1px solid var(--tiny-border-light);
+	border-radius: var(--tiny-border-radius-md);
+	padding: 20px;
+	margin-top: 16px;
+}
+
+.maintenance-mode-module .config-field .field-label {
+	font-size: var(--tiny-font-size-md);
+	font-weight: var(--tiny-font-weight-medium);
+	color: var(--tiny-text-primary);
+	margin-bottom: 8px;
+	display: block;
+}
+
+.maintenance-mode-module .config-field textarea {
+	min-height: 80px;
+	resize: vertical;
+}
+
+.maintenance-mode-module .config-field select {
+	width: 100%;
+	max-width: 300px;
 }

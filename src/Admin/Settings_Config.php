@@ -99,16 +99,39 @@ class Settings_Config {
 				'sanitize_callback' => 'sanitize_title',
 				'dependency' => 'enable_change_login_url',
 			),
-			'allowed_login_paths' => array(
-				'type' => 'textarea',
-				'default' => '',
-				'label' => __( 'Allowed Login Paths', 'tiny-wp-modules' ),
-				'description' => __( 'Paths that are exempted from login URL restrictions.', 'tiny-wp-modules' ),
-				'category' => 'advanced',
-				'capability' => 'manage_options',
-				'sanitize_callback' => 'sanitize_textarea_field',
-				'dependency' => 'enable_change_login_url',
+					'allowed_login_paths' => array(
+			'type' => 'textarea',
+			'default' => '',
+			'label' => __( 'Allowed Login Paths', 'tiny-wp-modules' ),
+			'description' => __( 'Paths that are exempted from login URL restrictions.', 'tiny-wp-modules' ),
+			'category' => 'advanced',
+			'capability' => 'manage_options',
+			'sanitize_callback' => 'sanitize_textarea_field',
+			'dependency' => 'enable_change_login_url',
+		),
+		'enable_login_id_type' => array(
+			'type' => 'boolean',
+			'default' => '0',
+			'label' => __( 'Login ID Type', 'tiny-wp-modules' ),
+			'description' => __( 'Change the login form to accept only usernames or only emails instead of both.', 'tiny-wp-modules' ),
+			'category' => 'advanced',
+			'capability' => 'manage_options',
+			'sanitize_callback' => 'sanitize_boolean',
+		),
+		'login_id_type' => array(
+			'type' => 'select',
+			'default' => 'username',
+			'label' => __( 'Login ID Type', 'tiny-wp-modules' ),
+			'description' => __( 'Choose what type of ID users can use to login.', 'tiny-wp-modules' ),
+			'category' => 'advanced',
+			'capability' => 'manage_options',
+			'sanitize_callback' => 'sanitize_text_field',
+			'dependency' => 'enable_login_id_type',
+			'options' => array(
+				'username' => __( 'Username Only', 'tiny-wp-modules' ),
+				'email' => __( 'Email Only', 'tiny-wp-modules' ),
 			),
+		),
 			'enable_redirect_after_login' => array(
 				'type' => 'boolean',
 				'default' => '0',
@@ -195,6 +218,72 @@ class Settings_Config {
 				'sanitize_callback' => 'sanitize_text_field',
 				'dependency' => 'enable_password_protection',
 			),
+			'enable_maintenance_mode' => array(
+				'type' => 'boolean',
+				'default' => '0',
+				'label' => __( 'Maintenance Mode', 'tiny-wp-modules' ),
+				'description' => __( 'Enable maintenance mode to show a custom page to visitors while keeping the site accessible to administrators.', 'tiny-wp-modules' ),
+				'category' => 'advanced',
+				'capability' => 'manage_options',
+				'sanitize_callback' => 'sanitize_boolean',
+			),
+			'maintenance_page_heading' => array(
+				'type' => 'text',
+				'default' => __( 'Site Under Maintenance', 'tiny-wp-modules' ),
+				'label' => __( 'Maintenance Page Heading', 'tiny-wp-modules' ),
+				'description' => __( 'Heading text displayed on the maintenance page.', 'tiny-wp-modules' ),
+				'category' => 'advanced',
+				'capability' => 'manage_options',
+				'sanitize_callback' => 'sanitize_text_field',
+				'dependency' => 'enable_maintenance_mode',
+			),
+			'maintenance_page_description' => array(
+				'type' => 'textarea',
+				'default' => __( 'We are currently performing scheduled maintenance. We will be back online shortly!', 'tiny-wp-modules' ),
+				'label' => __( 'Maintenance Page Description', 'tiny-wp-modules' ),
+				'description' => __( 'Description text displayed on the maintenance page.', 'tiny-wp-modules' ),
+				'category' => 'advanced',
+				'capability' => 'manage_options',
+				'sanitize_callback' => 'sanitize_textarea_field',
+				'dependency' => 'enable_maintenance_mode',
+			),
+			'maintenance_page_background' => array(
+				'type' => 'select',
+				'default' => 'stripes',
+				'label' => __( 'Maintenance Page Background', 'tiny-wp-modules' ),
+				'description' => __( 'Background style for the maintenance page.', 'tiny-wp-modules' ),
+				'category' => 'advanced',
+				'capability' => 'manage_options',
+				'sanitize_callback' => 'sanitize_text_field',
+				'dependency' => 'enable_maintenance_mode',
+				'options' => array(
+					'stripes' => __( 'Stripes', 'tiny-wp-modules' ),
+					'lines' => __( 'Lines', 'tiny-wp-modules' ),
+					'curves' => __( 'Curves', 'tiny-wp-modules' ),
+					'solid_color' => __( 'Solid Color', 'tiny-wp-modules' ),
+					'gradient' => __( 'Gradient', 'tiny-wp-modules' ),
+				),
+			),
+			'maintenance_bypass_key' => array(
+				'type' => 'text',
+				'default' => '',
+				'label' => __( 'Maintenance Bypass Key', 'tiny-wp-modules' ),
+				'description' => __( 'Secret key to bypass maintenance mode. Add ?bypass=YOUR_KEY to any URL to access the site.', 'tiny-wp-modules' ),
+				'category' => 'advanced',
+				'capability' => 'manage_options',
+				'sanitize_callback' => 'sanitize_text_field',
+				'dependency' => 'enable_maintenance_mode',
+			),
+			'maintenance_allowed_roles' => array(
+				'type' => 'array',
+				'default' => array(),
+				'label' => __( 'Maintenance Allowed Roles', 'tiny-wp-modules' ),
+				'description' => __( 'User roles that can access the frontend during maintenance mode.', 'tiny-wp-modules' ),
+				'category' => 'advanced',
+				'capability' => 'manage_options',
+				'sanitize_callback' => 'sanitize_array',
+				'dependency' => 'enable_maintenance_mode',
+			),
 			'enable_svg_upload' => array(
 				'type' => 'boolean',
 				'default' => '0',
@@ -214,7 +303,65 @@ class Settings_Config {
 				'sanitize_callback' => 'sanitize_array',
 				'dependency' => 'enable_svg_upload',
 			),
-		);
+			'enable_avif_upload' => array(
+				'type' => 'boolean',
+				'default' => '0',
+				'label' => __( 'AVIF Upload', 'tiny-wp-modules' ),
+				'description' => __( 'Allow AVIF file uploads to the WordPress media library with proper mime type support.', 'tiny-wp-modules' ),
+				'category' => 'advanced',
+				'capability' => 'manage_options',
+				'sanitize_callback' => 'sanitize_boolean',
+			),
+		'avif_upload_roles' => array(
+			'type' => 'array',
+			'default' => array(),
+			'label' => __( 'AVIF Upload Roles', 'tiny-wp-modules' ),
+			'description' => __( 'User roles that can upload AVIF files.', 'tiny-wp-modules' ),
+			'category' => 'advanced',
+			'capability' => 'manage_options',
+			'sanitize_callback' => 'sanitize_array',
+			'dependency' => 'enable_avif_upload',
+		),
+		'enable_image_upload_control' => array(
+			'type' => 'boolean',
+			'default' => '0',
+			'label' => __( 'Image Upload Control', 'tiny-wp-modules' ),
+			'description' => __( 'Control image uploads with automatic conversion, resizing, and orientation fixing.', 'tiny-wp-modules' ),
+			'category' => 'advanced',
+			'capability' => 'manage_options',
+			'sanitize_callback' => 'sanitize_boolean',
+		),
+		'image_max_width' => array(
+			'type' => 'number',
+			'default' => 1920,
+			'label' => __( 'Maximum Image Width', 'tiny-wp-modules' ),
+			'description' => __( 'Maximum width for uploaded images (pixels).', 'tiny-wp-modules' ),
+			'category' => 'advanced',
+			'capability' => 'manage_options',
+			'sanitize_callback' => 'sanitize_number',
+			'dependency' => 'enable_image_upload_control',
+		),
+		'image_max_height' => array(
+			'type' => 'number',
+			'default' => 1080,
+			'label' => __( 'Maximum Image Height', 'tiny-wp-modules' ),
+			'description' => __( 'Maximum height for uploaded images (pixels).', 'tiny-wp-modules' ),
+			'category' => 'advanced',
+			'capability' => 'manage_options',
+			'sanitize_callback' => 'sanitize_number',
+			'dependency' => 'enable_image_upload_control',
+		),
+		'image_conversion_quality' => array(
+			'type' => 'number',
+			'default' => 82,
+			'label' => __( 'JPEG Conversion Quality', 'tiny-wp-modules' ),
+			'description' => __( 'Quality for JPEG conversion (0-100).', 'tiny-wp-modules' ),
+			'category' => 'advanced',
+			'capability' => 'manage_options',
+			'sanitize_callback' => 'sanitize_number',
+			'dependency' => 'enable_image_upload_control',
+		),
+	);
 	}
 
 	/**
@@ -410,6 +557,8 @@ class Settings_Config {
 				return array();
 			case 'sanitize_password':
 				return sanitize_text_field( $value );
+			case 'sanitize_number':
+				return intval( $value );
 			default:
 				if ( function_exists( $callback ) ) {
 					return call_user_func( $callback, $value );
@@ -475,4 +624,27 @@ class Settings_Config {
 	public static function verify_ajax_nonce( string $nonce ): bool {
 		return wp_verify_nonce( $nonce, self::AJAX_NONCE_ACTION );
 	}
+
+	/**
+	 * Get section heading HTML
+	 *
+	 * @param string $title Section title.
+	 * @param string $description Section description.
+	 * @return string Section heading HTML.
+	 */
+	public static function get_section_heading( string $title, string $description ): string {
+		return sprintf(
+			'<tr class="setting-row section-heading">
+				<td colspan="2">
+					<div class="section-header">
+						<h3>%s</h3>
+						<p>%s</p>
+					</div>
+				</td>
+			</tr>',
+			esc_html( $title ),
+			esc_html( $description )
+		);
+	}
+
 }
