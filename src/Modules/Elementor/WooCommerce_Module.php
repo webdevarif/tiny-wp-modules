@@ -10,28 +10,30 @@ namespace TinyWpModules\Modules\Elementor;
 /**
  * Handles Elementor WooCommerce functionality
  */
-class WooCommerce_Module {
+class WooCommerce_Module extends Base_Module {
 
 	/**
-	 * WooCommerce widgets registry
+	 * Module type identifier
 	 *
-	 * @var array
+	 * @var string
 	 */
-	private $woocommerce_widgets = array();
+	protected $module_type = 'woocommerce';
 
 	/**
 	 * Initialize the module
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'init' ) );
-		$this->register_woocommerce_widgets();
+		parent::__construct();
+		
+		// Hook into Elementor's loaded action to register WooCommerce widgets
+		add_action( 'elementor/loaded', array( $this, 'register_woocommerce_widgets_with_elementor' ) );
 	}
 
 	/**
 	 * Register all available WooCommerce widgets
 	 */
-	private function register_woocommerce_widgets() {
-		$this->woocommerce_widgets = array(
+	protected function register_items() {
+		$this->items = array(
 			'product_grid_widget' => array(
 				'class' => 'Product_Grid_Widget',
 				'file' => 'woocommerce/product-grid-widget.php'
@@ -55,59 +57,84 @@ class WooCommerce_Module {
 			'product_comparison_widget' => array(
 				'class' => 'Product_Comparison_Widget',
 				'file' => 'woocommerce/product-comparison-widget.php'
+			),
+			'product_quick_view_widget' => array(
+				'class' => 'Product_Quick_View_Widget',
+				'file' => 'woocommerce/product-quick-view-widget.php'
+			),
+			'product_reviews_widget' => array(
+				'class' => 'Product_Reviews_Widget',
+				'file' => 'woocommerce/product-reviews-widget.php'
+			),
+			'related_products_widget' => array(
+				'class' => 'Related_Products_Widget',
+				'file' => 'woocommerce/related-products-widget.php'
 			)
 		);
 
 		// Allow other plugins/themes to register additional WooCommerce widgets
-		$this->woocommerce_widgets = apply_filters( 'tiny_wp_modules_elementor_woocommerce_registry', $this->woocommerce_widgets );
+		$this->items = apply_filters( 'tiny_wp_modules_elementor_woocommerce_registry', $this->items );
 	}
 
-	/**
-	 * Initialize module functionality
-	 */
-	public function init() {
-		// Check if Elementor is active and WooCommerce is enabled
-		if ( ! $this->is_enabled() ) {
-			return;
-		}
 
-		// Initialize enabled WooCommerce widgets
-		$this->init_enabled_woocommerce_widgets();
-	}
-
-	/**
-	 * Check if module is enabled
-	 *
-	 * @return bool True if enabled.
-	 */
-	private function is_enabled() {
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-		return isset( $settings['enable_elementor'] ) && $settings['enable_elementor'] &&
-			   isset( $settings['elementor_woocommerce'] ) && $settings['elementor_woocommerce'];
-	}
-
-	/**
-	 * Initialize only the enabled WooCommerce widgets
-	 */
-	private function init_enabled_woocommerce_widgets() {
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-
-		foreach ( $this->woocommerce_widgets as $widget_id => $widget_data ) {
-			if ( isset( $settings[ $widget_id ] ) && $settings[ $widget_id ] ) {
-				$this->init_woocommerce_widget( $widget_id, $widget_data );
-			}
-		}
-	}
 
 	/**
 	 * Initialize a specific WooCommerce widget
 	 *
-	 * @param string $widget_id Widget ID.
-	 * @param array  $widget_data Widget configuration data.
+	 * @param string $item_id Item ID.
+	 * @param array  $item_data Item configuration data.
 	 */
-	private function init_woocommerce_widget( $widget_id, $widget_data ) {
+	protected function init_item( $item_id, $item_data ) {
 		// Load the widget file if it exists
-		$this->load_woocommerce_widget_file( $widget_data['file'] );
+		$this->load_woocommerce_widget_file( $item_data['file'] );
+	}
+
+	/**
+	 * Check module dependencies
+	 *
+	 * @return bool True if all dependencies are met.
+	 */
+	public function check_dependencies() {
+		return class_exists( '\Elementor\Plugin' ) && class_exists( 'WooCommerce' );
+	}
+
+	/**
+	 * Get dependency warning message
+	 *
+	 * @return string Warning message.
+	 */
+	public function get_dependency_warning() {
+		if ( ! class_exists( '\Elementor\Plugin' ) ) {
+			return __( 'Elementor plugin is required to use WooCommerce widgets.', 'tiny-wp-modules' );
+		}
+		return __( 'WooCommerce plugin is required to use WooCommerce widgets.', 'tiny-wp-modules' );
+	}
+
+	/**
+	 * Register all enabled WooCommerce widgets with Elementor
+	 */
+	public function register_woocommerce_widgets_with_elementor() {
+		// Check if Elementor is active
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			return;
+		}
+
+		$settings = get_option( 'tiny_wp_modules_settings', array() );
+		
+		foreach ( $this->items as $item_id => $item_data ) {
+			if ( isset( $settings[ $item_id ] ) && $settings[ $item_id ] ) {
+				// Load the widget file if it exists
+				$this->load_woocommerce_widget_file( $item_data['file'] );
+				
+				// Register the widget with Elementor
+				$class_name = $item_data['class'];
+				if ( class_exists( $class_name ) ) {
+					add_action( 'elementor/widgets/register', function( $widgets_manager ) use ( $class_name ) {
+						$widgets_manager->register( new $class_name() );
+					} );
+				}
+			}
+		}
 	}
 
 	/**
@@ -123,22 +150,11 @@ class WooCommerce_Module {
 	}
 
 	/**
-	 * Get registered WooCommerce widgets
+	 * Get registered WooCommerce widgets (alias for get_items for backward compatibility)
 	 *
 	 * @return array Array of registered WooCommerce widgets.
 	 */
 	public function get_woocommerce_widgets() {
-		return $this->woocommerce_widgets;
-	}
-
-	/**
-	 * Check if a specific WooCommerce widget is enabled
-	 *
-	 * @param string $widget_id Widget ID.
-	 * @return bool True if enabled.
-	 */
-	public function is_woocommerce_widget_enabled( $widget_id ) {
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-		return isset( $settings[ $widget_id ] ) && $settings[ $widget_id ];
+		return $this->items;
 	}
 }

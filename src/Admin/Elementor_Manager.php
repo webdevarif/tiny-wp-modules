@@ -19,30 +19,30 @@ class Elementor_Manager {
 	 */
 	public static function get_modules() {
 		return array(
-			'widgets' => array(
-				'id' => 'elementor_widgets',
-				'label' => __( 'Elementor Widgets', 'tiny-wp-modules' ),
-				'description' => __( 'Enable custom Elementor widgets for enhanced page building', 'tiny-wp-modules' ),
-				'icon' => 'widgets',
-				'class' => 'Elementor_Widgets_Module',
-				'file' => 'src/Modules/Elementor/Widgets_Module.php'
-			),
-			'tags' => array(
-				'id' => 'elementor_tags',
-				'label' => __( 'Elementor Tags', 'tiny-wp-modules' ),
-				'description' => __( 'Add custom Elementor tags and shortcodes', 'tiny-wp-modules' ),
-				'icon' => 'tags',
-				'class' => 'Elementor_Tags_Module',
-				'file' => 'src/Modules/Elementor/Tags_Module.php'
-			),
-			'woocommerce' => array(
-				'id' => 'elementor_woocommerce',
-				'label' => __( 'WooCommerce', 'tiny-wp-modules' ),
-				'description' => __( 'Enhanced WooCommerce integration with Elementor', 'tiny-wp-modules' ),
-				'icon' => 'woocommerce',
-				'class' => 'Elementor_WooCommerce_Module',
-				'file' => 'src/Modules/Elementor/WooCommerce_Module.php'
-			)
+					'widgets' => array(
+			'id' => 'elementor_widgets',
+			'label' => __( 'Elementor Widgets', 'tiny-wp-modules' ),
+			'description' => __( 'Enable custom Elementor widgets for enhanced page building', 'tiny-wp-modules' ),
+			'icon' => 'widgets',
+			'class' => 'Widgets_Module',
+			'file' => 'src/Modules/Elementor/Widgets_Module.php'
+		),
+		'tags' => array(
+			'id' => 'elementor_tags',
+			'label' => __( 'Elementor Tags', 'tiny-wp-modules' ),
+			'description' => __( 'Add custom Elementor tags and shortcodes', 'tiny-wp-modules' ),
+			'icon' => 'tags',
+			'class' => 'Tags_Module',
+			'file' => 'src/Modules/Elementor/Tags_Module.php'
+		),
+		'woocommerce' => array(
+			'id' => 'elementor_woocommerce',
+			'label' => __( 'WooCommerce', 'tiny-wp-modules' ),
+			'description' => __( 'Enhanced WooCommerce integration with Elementor', 'tiny-wp-modules' ),
+			'icon' => 'woocommerce',
+			'class' => 'WooCommerce_Module',
+			'file' => 'src/Modules/Elementor/WooCommerce_Module.php'
+		)
 		);
 	}
 
@@ -78,76 +78,31 @@ class Elementor_Manager {
 	private static function get_widget_items() {
 		// Get widgets from the Widgets_Module
 		$widgets_module = new \TinyWpModules\Modules\Elementor\Widgets_Module();
-		$registered_widgets = $widgets_module->get_widgets();
-		
-		$widgets = array();
-		
-		foreach ( $registered_widgets as $widget_id => $widget_data ) {
-			// Create widget item data based on the registered widget
-			$widgets[ $widget_id ] = array(
-				'id' => $widget_id,
-				'label' => self::get_widget_label( $widget_id ),
-				'category' => self::get_widget_category( $widget_id ),
-				'class' => $widget_data['class']
-			);
-		}
-		
-		// Filter widgets for extensibility
-		return apply_filters( 'tiny_wp_modules_elementor_widgets', $widgets );
+		return $widgets_module->get_enabled_items_for_settings();
 	}
 	
 	/**
-	 * Get widget label by widget ID
+	 * Get item label by item ID
 	 *
-	 * @param string $widget_id Widget ID.
-	 * @return string Widget label.
+	 * @param string $item_id Item ID.
+	 * @return string Item label.
 	 */
-	private static function get_widget_label( $widget_id ) {
-		// Convert widget ID to readable label
-		$label = str_replace( '_', ' ', $widget_id );
+	private static function get_item_label( $item_id ) {
+		// Convert item ID to readable label
+		$label = str_replace( '_', ' ', $item_id );
 		$label = str_replace( ' widget', '', $label );
-		return ucwords( $label );
-	}
-	
-
-	
-	/**
-	 * Get widget category by widget ID
-	 *
-	 * @param string $widget_id Widget ID.
-	 * @return string Widget category.
-	 */
-	private static function get_widget_category( $widget_id ) {
-		// All widgets belong to the same category: Tiny WP Modules
-		return self::get_plugin_category();
-	}
-
-	/**
-	 * Get tag label by tag ID
-	 *
-	 * @param string $tag_id Tag ID.
-	 * @return string Tag label.
-	 */
-	private static function get_tag_label( $tag_id ) {
-		// Convert tag ID to readable label
-		$label = str_replace( '_', ' ', $tag_id );
 		$label = str_replace( ' tag', '', $label );
 		return ucwords( $label );
 	}
 
-
-
 	/**
-	 * Get WooCommerce widget label by widget ID
+	 * Get item category - all items belong to the same category
 	 *
-	 * @param string $widget_id Widget ID.
-	 * @return string WooCommerce widget label.
+	 * @param string $item_id Item ID.
+	 * @return string Item category.
 	 */
-	private static function get_woocommerce_widget_label( $widget_id ) {
-		// Convert widget ID to readable label
-		$label = str_replace( '_', ' ', $widget_id );
-		$label = str_replace( ' widget', '', $label );
-		return ucwords( $label );
+	private static function get_item_category( $item_id ) {
+		return self::get_plugin_category();
 	}
 
 
@@ -160,22 +115,7 @@ class Elementor_Manager {
 	private static function get_tag_items() {
 		// Get tags from the Tags_Module
 		$tags_module = new \TinyWpModules\Modules\Elementor\Tags_Module();
-		$registered_tags = $tags_module->get_tags();
-		
-		$tags = array();
-		
-		foreach ( $registered_tags as $tag_id => $tag_data ) {
-			// Create tag item data based on the registered tag
-			$tags[ $tag_id ] = array(
-				'id' => $tag_id,
-				'label' => self::get_tag_label( $tag_id ),
-				'category' => self::get_plugin_category(),
-				'class' => $tag_data['class']
-			);
-		}
-		
-		// Filter tags for extensibility
-		return apply_filters( 'tiny_wp_modules_elementor_tags', $tags );
+		return $tags_module->get_enabled_items_for_settings();
 	}
 
 	/**
@@ -186,22 +126,7 @@ class Elementor_Manager {
 	private static function get_woocommerce_items() {
 		// Get WooCommerce widgets from the WooCommerce_Module
 		$woocommerce_module = new \TinyWpModules\Modules\Elementor\WooCommerce_Module();
-		$registered_woocommerce_widgets = $woocommerce_module->get_woocommerce_widgets();
-		
-		$woocommerce_items = array();
-		
-		foreach ( $registered_woocommerce_widgets as $widget_id => $widget_data ) {
-			// Create WooCommerce widget item data based on the registered widget
-			$woocommerce_items[ $widget_id ] = array(
-				'id' => $widget_id,
-				'label' => self::get_woocommerce_widget_label( $widget_id ),
-				'category' => self::get_plugin_category(),
-				'class' => $widget_data['class']
-			);
-		}
-		
-		// Filter WooCommerce widgets for extensibility
-		return apply_filters( 'tiny_wp_modules_elementor_woocommerce', $woocommerce_items );
+		return $woocommerce_module->get_enabled_items_for_settings();
 	}
 
 	/**
@@ -242,7 +167,15 @@ class Elementor_Manager {
 			<div class="elementor-vertical-groups">
 				<?php foreach ( $modules as $module_key => $module_data ) : ?>
 					<?php 
+					// Check dependencies for this module
+					$module_class = 'TinyWpModules\\Modules\\Elementor\\' . $module_data['class'];
+					$module_instance = new $module_class();
+					$dependencies_met = $module_instance->are_dependencies_met();
+					$dependency_warning = $module_instance->get_dependency_warning();
+					
 					$module_enabled = isset( $settings[ $module_data['id'] ] ) && $settings[ $module_data['id'] ] ? true : false;
+					// Only allow enabling if dependencies are met
+					$can_enable = $dependencies_met;
 					?>
 					<div class="elementor-group" x-data="{ 
 						groupEnabled: <?php echo $module_enabled ? 'true' : 'false'; ?>
@@ -259,7 +192,8 @@ class Elementor_Manager {
 									'checked' => $module_enabled,
 									'label' => '',
 									'class' => 'group-switch-toggle',
-									'x_on_change' => 'groupEnabled = $event.target.checked'
+									'x_on_change' => 'groupEnabled = $event.target.checked',
+									'disabled' => !$can_enable
 								) );
 								?>
 							</div>
@@ -268,6 +202,12 @@ class Elementor_Manager {
 								<div class="group-details">
 									<h3><?php echo esc_html( $module_data['label'] ); ?></h3>
 									<p><?php echo esc_html( $module_data['description'] ); ?></p>
+									<?php if ( !$dependencies_met && $module_enabled && !empty( $dependency_warning ) ) : ?>
+										<div class="dependency-warning">
+											<span class="warning-icon">⚠️</span>
+											<span class="warning-text"><?php echo esc_html( $dependency_warning ); ?></span>
+										</div>
+									<?php endif; ?>
 								</div>
 							</div>
 						</div>
@@ -285,6 +225,8 @@ class Elementor_Manager {
 								<?php
 								$items = self::get_module_items( $module_key );
 								foreach ( $items as $item_key => $item_data ) :
+									// Check if this item can be enabled based on dependencies
+									$item_can_be_enabled = $module_instance->can_item_be_enabled( $item_data['id'] );
 								?>
 									<div class="group-item">
 										<div class="item-info">
@@ -300,7 +242,8 @@ class Elementor_Manager {
 												'value' => '1',
 												'checked' => $item_enabled,
 												'label' => '',
-												'class' => 'item-switch'
+												'class' => 'item-switch',
+												'disabled' => !$item_can_be_enabled
 											) );
 											?>
 										</div>

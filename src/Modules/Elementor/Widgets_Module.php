@@ -10,104 +10,128 @@ namespace TinyWpModules\Modules\Elementor;
 /**
  * Handles Elementor widgets functionality
  */
-class Widgets_Module {
+class Widgets_Module extends Base_Module {
 
 	/**
-	 * Widget registry
+	 * Module type identifier
 	 *
-	 * @var array
+	 * @var string
 	 */
-	private $widgets = array();
+	protected $module_type = 'widgets';
 
 	/**
 	 * Initialize the module
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'init' ) );
-		$this->register_widgets();
+		parent::__construct();
+		
+		// Hook into Elementor's loaded action to register widgets
+		add_action( 'elementor/loaded', array( $this, 'register_widgets_with_elementor' ) );
 	}
 
 	/**
 	 * Register all available widgets
 	 */
-	private function register_widgets() {
-		$this->widgets = array(
-			'hero_section_widget' => array(
-				'class' => 'Hero_Section_Widget',
-				'file' => 'widgets/hero-section-widget.php'
+	protected function register_items() {
+		$this->items = array(
+			'cart_icon_widget' => array(
+				'class' => 'Cart_Icon_Widget',
+				'file' => 'widgets/cart-icon-widget.php'
 			),
-			'testimonials_widget' => array(
-				'class' => 'Testimonials_Widget',
-				'file' => 'widgets/testimonials-widget.php'
+			'cart_widget' => array(
+				'class' => 'Cart_Widget',
+				'file' => 'widgets/cart-widget.php'
 			),
-			'pricing_table_widget' => array(
-				'class' => 'Pricing_Table_Widget',
-				'file' => 'widgets/pricing-table-widget.php'
+			'add_to_cart_widget' => array(
+				'class' => 'Add_To_Cart_Widget',
+				'file' => 'widgets/add-to-cart-widget.php'
 			),
-			'team_members_widget' => array(
-				'class' => 'Team_Members_Widget',
-				'file' => 'widgets/team-members-widget.php'
+			'add_to_cart_button_widget' => array(
+				'class' => 'Add_To_Cart_Button_Widget',
+				'file' => 'widgets/add-to-cart-button-widget.php'
 			),
-			'countdown_timer_widget' => array(
-				'class' => 'Countdown_Timer_Widget',
-				'file' => 'widgets/countdown-timer-widget.php'
+			'faq_widget' => array(
+				'class' => 'FAQ_Widget',
+				'file' => 'widgets/faq-widget.php'
 			),
-			'progress_bars_widget' => array(
-				'class' => 'Progress_Bars_Widget',
-				'file' => 'widgets/progress-bars-widget.php'
+			'form_check_options_widget' => array(
+				'class' => 'Form_Check_Options_Widget',
+				'file' => 'widgets/form-check-options-widget.php'
+			),
+			'product_filters_widget' => array(
+				'class' => 'Product_Filters_Widget',
+				'file' => 'widgets/product-filters-widget.php'
+			),
+			'shop_cart_combined_widget' => array(
+				'class' => 'Shop_Cart_Combined_Widget',
+				'file' => 'widgets/shop-cart-combined-widget.php'
+			),
+			'best_seller_carousel_widget' => array(
+				'class' => 'Best_Seller_Carousel_Widget',
+				'file' => 'widgets/best-seller-carousel-widget.php'
 			)
 		);
 
 		// Allow other plugins/themes to register additional widgets
-		$this->widgets = apply_filters( 'tiny_wp_modules_elementor_widgets_registry', $this->widgets );
+		$this->items = apply_filters( 'tiny_wp_modules_elementor_widgets_registry', $this->items );
 	}
 
-	/**
-	 * Initialize module functionality
-	 */
-	public function init() {
-		// Check if Elementor is active and widgets are enabled
-		if ( ! $this->is_enabled() ) {
-			return;
-		}
 
-		// Initialize enabled widgets
-		$this->init_enabled_widgets();
-	}
-
-	/**
-	 * Check if module is enabled
-	 *
-	 * @return bool True if enabled.
-	 */
-	private function is_enabled() {
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-		return isset( $settings['enable_elementor'] ) && $settings['enable_elementor'] &&
-			   isset( $settings['elementor_widgets'] ) && $settings['elementor_widgets'];
-	}
-
-	/**
-	 * Initialize only the enabled widgets
-	 */
-	private function init_enabled_widgets() {
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-
-		foreach ( $this->widgets as $widget_id => $widget_data ) {
-			if ( isset( $settings[ $widget_id ] ) && $settings[ $widget_id ] ) {
-				$this->init_widget( $widget_id, $widget_data );
-			}
-		}
-	}
 
 	/**
 	 * Initialize a specific widget
 	 *
-	 * @param string $widget_id Widget ID.
-	 * @param array  $widget_data Widget configuration data.
+	 * @param string $item_id Item ID.
+	 * @param array  $item_data Item configuration data.
 	 */
-	private function init_widget( $widget_id, $widget_data ) {
+	protected function init_item( $item_id, $item_data ) {
 		// Load the widget file if it exists
-		$this->load_widget_file( $widget_data['file'] );
+		$this->load_widget_file( $item_data['file'] );
+	}
+
+	/**
+	 * Check module dependencies
+	 *
+	 * @return bool True if all dependencies are met.
+	 */
+	public function check_dependencies() {
+		return class_exists( '\Elementor\Plugin' );
+	}
+
+	/**
+	 * Get dependency warning message
+	 *
+	 * @return string Warning message.
+	 */
+	public function get_dependency_warning() {
+		return __( 'Elementor plugin is required to use widgets.', 'tiny-wp-modules' );
+	}
+
+	/**
+	 * Register all enabled widgets with Elementor
+	 */
+	public function register_widgets_with_elementor() {
+		// Check if Elementor is active
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			return;
+		}
+
+		$settings = get_option( 'tiny_wp_modules_settings', array() );
+		
+		foreach ( $this->items as $item_id => $item_data ) {
+			if ( isset( $settings[ $item_id ] ) && $settings[ $item_id ] ) {
+				// Load the widget file if it exists
+				$this->load_widget_file( $item_data['file'] );
+				
+				// Register the widget with Elementor
+				$class_name = $item_data['class'];
+				if ( class_exists( $class_name ) ) {
+					add_action( 'elementor/widgets/register', function( $widgets_manager ) use ( $class_name ) {
+						$widgets_manager->register( new $class_name() );
+					} );
+				}
+			}
+		}
 	}
 
 	/**
@@ -123,22 +147,11 @@ class Widgets_Module {
 	}
 
 	/**
-	 * Get registered widgets
+	 * Get registered widgets (alias for get_items for backward compatibility)
 	 *
 	 * @return array Array of registered widgets.
 	 */
 	public function get_widgets() {
-		return $this->widgets;
-	}
-
-	/**
-	 * Check if a specific widget is enabled
-	 *
-	 * @param string $widget_id Widget ID.
-	 * @return bool True if enabled.
-	 */
-	public function is_widget_enabled( $widget_id ) {
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-		return isset( $settings[ $widget_id ] ) && $settings[ $widget_id ];
+		return $this->items;
 	}
 }

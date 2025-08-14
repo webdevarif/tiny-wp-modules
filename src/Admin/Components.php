@@ -44,7 +44,7 @@ class Components {
 
 		ob_start();
 		?>
-		<div class="tiny-wp-modules-switch-wrapper <?php echo $class; ?>">
+		<div class="tiny-wp-modules-switch-wrapper <?php echo $class; ?><?php echo $disabled ? ' disabled' : ''; ?>">
 			<label class="tiny-wp-modules-switch">
 				<input type="checkbox" 
 					   id="<?php echo $id; ?>" 

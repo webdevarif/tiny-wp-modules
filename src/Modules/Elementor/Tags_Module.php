@@ -10,28 +10,30 @@ namespace TinyWpModules\Modules\Elementor;
 /**
  * Handles Elementor tags functionality
  */
-class Tags_Module {
+class Tags_Module extends Base_Module {
 
 	/**
-	 * Tags registry
+	 * Module type identifier
 	 *
-	 * @var array
+	 * @var string
 	 */
-	private $tags = array();
+	protected $module_type = 'tags';
 
 	/**
 	 * Initialize the module
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'init' ) );
-		$this->register_tags();
+		parent::__construct();
+		
+		// Hook into Elementor's loaded action to register tags
+		add_action( 'elementor/loaded', array( $this, 'register_tags_with_elementor' ) );
 	}
 
 	/**
 	 * Register all available tags
 	 */
-	private function register_tags() {
-		$this->tags = array(
+	protected function register_items() {
+		$this->items = array(
 			'user_info_tag' => array(
 				'class' => 'User_Info_Tag',
 				'file' => 'tags/user-info-tag.php'
@@ -51,59 +53,81 @@ class Tags_Module {
 			'query_loop_tag' => array(
 				'class' => 'Query_Loop_Tag',
 				'file' => 'tags/query-loop-tag.php'
+			),
+			'product_price_tag' => array(
+				'class' => 'Product_Price_Tag',
+				'file' => 'tags/product-price-tag.php'
+			),
+			'product_rating_tag' => array(
+				'class' => 'Product_Rating_Tag',
+				'file' => 'tags/product-rating-tag.php'
+			),
+			'cart_total_tag' => array(
+				'class' => 'Cart_Total_Tag',
+				'file' => 'tags/cart-total-tag.php'
 			)
 		);
 
 		// Allow other plugins/themes to register additional tags
-		$this->tags = apply_filters( 'tiny_wp_modules_elementor_tags_registry', $this->tags );
+		$this->items = apply_filters( 'tiny_wp_modules_elementor_tags_registry', $this->items );
 	}
 
-	/**
-	 * Initialize module functionality
-	 */
-	public function init() {
-		// Check if Elementor is active and tags are enabled
-		if ( ! $this->is_enabled() ) {
-			return;
-		}
 
-		// Initialize enabled tags
-		$this->init_enabled_tags();
-	}
-
-	/**
-	 * Check if module is enabled
-	 *
-	 * @return bool True if enabled.
-	 */
-	private function is_enabled() {
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-		return isset( $settings['enable_elementor'] ) && $settings['enable_elementor'] &&
-			   isset( $settings['elementor_tags'] ) && $settings['elementor_tags'];
-	}
-
-	/**
-	 * Initialize only the enabled tags
-	 */
-	private function init_enabled_tags() {
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-
-		foreach ( $this->tags as $tag_id => $tag_data ) {
-			if ( isset( $settings[ $tag_id ] ) && $settings[ $tag_id ] ) {
-				$this->init_tag( $tag_id, $tag_data );
-			}
-		}
-	}
 
 	/**
 	 * Initialize a specific tag
 	 *
-	 * @param string $tag_id Tag ID.
-	 * @param array  $tag_data Tag configuration data.
+	 * @param string $item_id Item ID.
+	 * @param array  $item_data Item configuration data.
 	 */
-	private function init_tag( $tag_id, $tag_data ) {
+	protected function init_item( $item_id, $item_data ) {
 		// Load the tag file if it exists
-		$this->load_tag_file( $tag_data['file'] );
+		$this->load_tag_file( $item_data['file'] );
+	}
+
+	/**
+	 * Check module dependencies
+	 *
+	 * @return bool True if all dependencies are met.
+	 */
+	public function check_dependencies() {
+		return class_exists( '\Elementor\Plugin' );
+	}
+
+	/**
+	 * Get dependency warning message
+	 *
+	 * @return string Warning message.
+	 */
+	public function get_dependency_warning() {
+		return __( 'Elementor plugin is required to use dynamic tags.', 'tiny-wp-modules' );
+	}
+
+	/**
+	 * Register all enabled tags with Elementor
+	 */
+	public function register_tags_with_elementor() {
+		// Check if Elementor is active
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			return;
+		}
+
+		$settings = get_option( 'tiny_wp_modules_settings', array() );
+		
+		foreach ( $this->items as $item_id => $item_data ) {
+			if ( isset( $settings[ $item_id ] ) && $settings[ $item_id ] ) {
+				// Load the tag file if it exists
+				$this->load_tag_file( $item_data['file'] );
+				
+				// Register the tag with Elementor
+				$class_name = $item_data['class'];
+				if ( class_exists( $class_name ) ) {
+					add_action( 'elementor/dynamic_tags/register', function( $dynamic_tags_manager ) use ( $class_name ) {
+						$dynamic_tags_manager->register( new $class_name() );
+					} );
+				}
+			}
+		}
 	}
 
 	/**
@@ -119,22 +143,11 @@ class Tags_Module {
 	}
 
 	/**
-	 * Get registered tags
+	 * Get registered tags (alias for get_items for backward compatibility)
 	 *
 	 * @return array Array of registered tags.
 	 */
 	public function get_tags() {
-		return $this->tags;
-	}
-
-	/**
-	 * Check if a specific tag is enabled
-	 *
-	 * @param string $tag_id Tag ID.
-	 * @return bool True if enabled.
-	 */
-	public function is_tag_enabled( $tag_id ) {
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-		return isset( $settings[ $tag_id ] ) && $settings[ $tag_id ];
+		return $this->items;
 	}
 }
