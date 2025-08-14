@@ -36,35 +36,35 @@ class Tags_Module extends Base_Module {
 		$this->items = array(
 			'user_info_tag' => array(
 				'class' => 'User_Info_Tag',
-				'file' => 'tags/user-info-tag.php'
+				'file' => 'Tags/User_Info_Tag.php'
 			),
 			'post_meta_tag' => array(
 				'class' => 'Post_Meta_Tag',
-				'file' => 'tags/post-meta-tag.php'
+				'file' => 'Tags/Post_Meta_Tag.php'
 			),
 			'site_info_tag' => array(
 				'class' => 'Site_Info_Tag',
-				'file' => 'tags/site-info-tag.php'
+				'file' => 'Tags/Site_Info_Tag.php'
 			),
 			'custom_fields_tag' => array(
 				'class' => 'Custom_Fields_Tag',
-				'file' => 'tags/custom-fields-tag.php'
+				'file' => 'Tags/Custom_Fields_Tag.php'
 			),
 			'query_loop_tag' => array(
 				'class' => 'Query_Loop_Tag',
-				'file' => 'tags/query-loop-tag.php'
+				'file' => 'Tags/Query_Loop_Tag.php'
 			),
 			'product_price_tag' => array(
 				'class' => 'Product_Price_Tag',
-				'file' => 'tags/product-price-tag.php'
+				'file' => 'Tags/Product_Price_Tag.php'
 			),
 			'product_rating_tag' => array(
 				'class' => 'Product_Rating_Tag',
-				'file' => 'tags/product-rating-tag.php'
+				'file' => 'Tags/Product_Rating_Tag.php'
 			),
 			'cart_total_tag' => array(
 				'class' => 'Cart_Total_Tag',
-				'file' => 'tags/cart-total-tag.php'
+				'file' => 'Tags/Cart_Total_Tag.php'
 			)
 		);
 

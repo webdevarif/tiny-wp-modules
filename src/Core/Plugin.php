@@ -18,7 +18,7 @@ use TinyWpModules\Advanced\Redirect_After_Logout;
 use TinyWpModules\Advanced\Redirect_404;
 use TinyWpModules\Advanced\Password_Protection;
 use TinyWpModules\Advanced\SVG_Upload;
-use TinyWpModules\Elementor\Widget_Manager;
+use TinyWpModules\Modules\Elementor\Widgets_Module;
 
 /**
  * Main Plugin Class
@@ -31,6 +31,13 @@ class Plugin {
 	 * @var string
 	 */
 	private $version;
+
+	/**
+	 * Plugin name
+	 *
+	 * @var string
+	 */
+	private $plugin_name;
 
 	/**
 	 * Plugin slug
@@ -66,6 +73,55 @@ class Plugin {
 	 * @var FAQ_Module
 	 */
 	private $faq_module;
+
+	/**
+	 * Change Login URL Module
+	 *
+	 * @var Change_Login_URL
+	 */
+	private $change_login_url;
+
+	/**
+	 * Redirect After Login Module
+	 *
+	 * @var Redirect_After_Login
+	 */
+	private $redirect_after_login;
+
+	/**
+	 * Redirect After Logout Module
+	 *
+	 * @var Redirect_After_Logout
+	 */
+	private $redirect_after_logout;
+
+	/**
+	 * Redirect 404 Module
+	 *
+	 * @var Redirect_404
+	 */
+	private $redirect_404;
+
+	/**
+	 * Password Protection Module
+	 *
+	 * @var Password_Protection
+	 */
+	private $password_protection;
+
+	/**
+	 * SVG Upload Module
+	 *
+	 * @var SVG_Upload
+	 */
+	private $svg_upload;
+
+	/**
+	 * Elementor Widget Manager
+	 *
+	 * @var Widgets_Module
+	 */
+	private $elementor_widget_manager;
 
 	/**
 	 * Constructor
@@ -107,7 +163,7 @@ class Plugin {
 		$this->svg_upload = new SVG_Upload();
 
 		// Initialize Elementor integration
-		$this->elementor_widget_manager = Widget_Manager::get_instance();
+		$this->elementor_widget_manager = new Widgets_Module();
 	}
 
 	/**
@@ -201,5 +257,15 @@ class Plugin {
 	 */
 	public function get_image_url( $path ) {
 		return $this->get_asset_url( 'images/' . ltrim( $path, '/' ) );
+	}
+
+	/**
+	 * Get icon URL
+	 *
+	 * @param string $path Icon path relative to assets/icons directory.
+	 * @return string Full icon URL.
+	 */
+	public function get_icon_url( $path ) {
+		return $this->get_asset_url( 'icons/' . ltrim( $path, '/' ) );
 	}
 } 

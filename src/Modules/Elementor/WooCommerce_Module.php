@@ -36,39 +36,39 @@ class WooCommerce_Module extends Base_Module {
 		$this->items = array(
 			'product_grid_widget' => array(
 				'class' => 'Product_Grid_Widget',
-				'file' => 'woocommerce/product-grid-widget.php'
+				'file' => 'WooCommerce/Product_Grid_Widget.php'
 			),
 			'product_carousel_widget' => array(
 				'class' => 'Product_Carousel_Widget',
-				'file' => 'woocommerce/product-carousel-widget.php'
+				'file' => 'WooCommerce/Product_Carousel_Widget.php'
 			),
 			'category_showcase_widget' => array(
 				'class' => 'Category_Showcase_Widget',
-				'file' => 'woocommerce/category-showcase-widget.php'
+				'file' => 'WooCommerce/Category_Showcase_Widget.php'
 			),
 			'cart_summary_widget' => array(
 				'class' => 'Cart_Summary_Widget',
-				'file' => 'woocommerce/cart-summary-widget.php'
+				'file' => 'WooCommerce/Cart_Summary_Widget.php'
 			),
 			'wishlist_widget' => array(
 				'class' => 'Wishlist_Widget',
-				'file' => 'woocommerce/wishlist-widget.php'
+				'file' => 'WooCommerce/Wishlist_Widget.php'
 			),
 			'product_comparison_widget' => array(
 				'class' => 'Product_Comparison_Widget',
-				'file' => 'woocommerce/product-comparison-widget.php'
+				'file' => 'WooCommerce/Product_Comparison_Widget.php'
 			),
 			'product_quick_view_widget' => array(
 				'class' => 'Product_Quick_View_Widget',
-				'file' => 'woocommerce/product-quick-view-widget.php'
+				'file' => 'WooCommerce/Product_Quick_View_Widget.php'
 			),
 			'product_reviews_widget' => array(
 				'class' => 'Product_Reviews_Widget',
-				'file' => 'woocommerce/product-reviews-widget.php'
+				'file' => 'WooCommerce/Product_Reviews_Widget.php'
 			),
 			'related_products_widget' => array(
 				'class' => 'Related_Products_Widget',
-				'file' => 'woocommerce/related-products-widget.php'
+				'file' => 'WooCommerce/Related_Products_Widget.php'
 			)
 		);
 

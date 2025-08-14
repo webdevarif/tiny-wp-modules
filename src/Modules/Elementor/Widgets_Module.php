@@ -36,39 +36,39 @@ class Widgets_Module extends Base_Module {
 		$this->items = array(
 			'cart_icon_widget' => array(
 				'class' => 'Cart_Icon_Widget',
-				'file' => 'widgets/cart-icon-widget.php'
+				'file' => 'Widgets/Cart_Icon_Widget.php'
 			),
 			'cart_widget' => array(
 				'class' => 'Cart_Widget',
-				'file' => 'widgets/cart-widget.php'
+				'file' => 'Widgets/Cart_Widget.php'
 			),
 			'add_to_cart_widget' => array(
 				'class' => 'Add_To_Cart_Widget',
-				'file' => 'widgets/add-to-cart-widget.php'
+				'file' => 'Widgets/Add_To_Cart_Widget.php'
 			),
 			'add_to_cart_button_widget' => array(
 				'class' => 'Add_To_Cart_Button_Widget',
-				'file' => 'widgets/add-to-cart-button-widget.php'
+				'file' => 'Widgets/Add_To_Cart_Button_Widget.php'
 			),
 			'faq_widget' => array(
 				'class' => 'FAQ_Widget',
-				'file' => 'widgets/faq-widget.php'
+				'file' => 'Widgets/FAQ_Widget.php'
 			),
 			'form_check_options_widget' => array(
 				'class' => 'Form_Check_Options_Widget',
-				'file' => 'widgets/form-check-options-widget.php'
+				'file' => 'Widgets/Form_Check_Options_Widget.php'
 			),
 			'product_filters_widget' => array(
 				'class' => 'Product_Filters_Widget',
-				'file' => 'widgets/product-filters-widget.php'
+				'file' => 'Widgets/Product_Filters_Widget.php'
 			),
 			'shop_cart_combined_widget' => array(
 				'class' => 'Shop_Cart_Combined_Widget',
-				'file' => 'widgets/shop-cart-combined-widget.php'
+				'file' => 'Widgets/Shop_Cart_Combined_Widget.php'
 			),
 			'best_seller_carousel_widget' => array(
 				'class' => 'Best_Seller_Carousel_Widget',
-				'file' => 'widgets/best-seller-carousel-widget.php'
+				'file' => 'Widgets/Best_Seller_Carousel_Widget.php'
 			)
 		);
 
