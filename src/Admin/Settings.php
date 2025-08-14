@@ -7,6 +7,8 @@
 
 namespace TinyWpModules\Admin;
 
+use TinyWpModules\Admin\Settings_Config;
+
 /**
  * Settings functionality
  */
@@ -24,7 +26,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	private $option_name = 'tiny_wp_modules_settings';
+	private $option_name;
 
 	/**
 	 * Initialize settings
@@ -34,6 +36,7 @@ class Settings {
 		global $tiny_wp_modules_plugin;
 		$plugin_slug = $tiny_wp_modules_plugin ? $tiny_wp_modules_plugin->get_plugin_slug() : 'tiny-wp-modules';
 		$this->option_group = $plugin_slug . '_options';
+		$this->option_name = Settings_Config::OPTION_NAME;
 		
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 	}
@@ -49,19 +52,13 @@ class Settings {
 			array(
 				'sanitize_callback' => array( $this, 'sanitize_settings' ),
 				'type' => 'array',
-				'default' => array(
-					'enable_faq' => '0',
-					'enable_elementor' => '0',
-				),
+				'default' => Settings_Config::get_default_values(),
 			)
 		);
 
 		// Ensure the option exists
 		if ( ! get_option( $this->option_name ) ) {
-			add_option( $this->option_name, array(
-				'enable_faq' => '0',
-				'enable_elementor' => '0',
-			) );
+			add_option( $this->option_name, Settings_Config::get_default_values() );
 		}
 	}
 
@@ -78,11 +75,9 @@ class Settings {
 
 
 
-		// Sanitize FAQ settings
-		$sanitized['enable_faq'] = isset( $input['enable_faq'] ) ? '1' : '0';
-
-		// Sanitize Elementor settings
-		$sanitized['enable_elementor'] = isset( $input['enable_elementor'] ) ? '1' : '0';
+		// Use centralized sanitization for general settings
+		$general_settings = Settings_Config::sanitize_settings( $input );
+		$sanitized = array_merge( $sanitized, $general_settings );
 		
 		// Sanitize Elementor module settings - preserve existing values if not in current form
 		$elementor_modules = array(

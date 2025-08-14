@@ -17,7 +17,7 @@ use TinyWpModules\Admin\Components;
 $settings = get_option( 'tiny_wp_modules_settings', array() );
 ?>
 
-<div class="tab-content" id="advanced-tab">
+	<div class="tab-content" id="advanced-tab">
 	<table class="settings-table">
 		<tbody>
 			<!-- Change Login URL -->
@@ -71,6 +71,16 @@ $settings = get_option( 'tiny_wp_modules_settings', array() );
 						)
 					) );
 					?>
+				</td>
+			</tr>
+
+			<!-- Redirect Section Heading -->
+			<tr class="setting-row section-heading">
+				<td colspan="2">
+					<div class="section-header">
+						<h3><?php esc_html_e( 'Redirect', 'tiny-wp-modules' ); ?></h3>
+						<p><?php esc_html_e( 'Configure custom redirects for various user actions and error pages.', 'tiny-wp-modules' ); ?></p>
+					</div>
 				</td>
 			</tr>
 
@@ -170,6 +180,16 @@ $settings = get_option( 'tiny_wp_modules_settings', array() );
 				</td>
 			</tr>
 
+			<!-- Protection Section Heading -->
+			<tr class="setting-row section-heading">
+				<td colspan="2">
+					<div class="section-header">
+						<h3><?php esc_html_e( 'Protection', 'tiny-wp-modules' ); ?></h3>
+						<p><?php esc_html_e( 'Security and access control features to protect your website.', 'tiny-wp-modules' ); ?></p>
+					</div>
+				</td>
+			</tr>
+
 			<!-- Password Protection -->
 			<tr class="setting-row">
 				<td class="setting-label">
@@ -200,6 +220,16 @@ $settings = get_option( 'tiny_wp_modules_settings', array() );
 						)
 					) );
 					?>
+				</td>
+			</tr>
+
+			<!-- Safe Media Section Heading -->
+			<tr class="setting-row section-heading">
+				<td colspan="2">
+					<div class="section-header">
+						<h3><?php esc_html_e( 'Safe Media', 'tiny-wp-modules' ); ?></h3>
+						<p><?php esc_html_e( 'Secure media handling and file upload features.', 'tiny-wp-modules' ); ?></p>
+					</div>
 				</td>
 			</tr>
 

@@ -1799,7 +1799,51 @@ input:checked + .tiny-wp-modules-slider:before {
 	cursor: not-allowed;
 }
 
+/* Section Headings for Advanced Tab */
+.section-heading {
+	background: var(--tiny-bg-secondary);
+	border: none;
+}
 
+.section-heading td {
+	padding: 0;
+	border: none;
+}
 
+.section-header {
+	padding: var(--tiny-spacing-xl) var(--tiny-spacing-lg);
+	text-align: left;
+	border-left: 4px solid var(--tiny-primary-color);
+	background: var(--tiny-bg-primary);
+	margin: var(--tiny-spacing-lg) 0;
+	border-radius: var(--tiny-border-radius-md);
+	box-shadow: var(--tiny-shadow-sm);
+}
 
+.section-header h3 {
+	margin: 0 0 var(--tiny-spacing-sm) 0;
+	color: var(--tiny-primary-color);
+	font-size: var(--tiny-font-size-lg);
+	font-weight: var(--tiny-font-weight-medium);
+	text-transform: uppercase;
+	letter-spacing: var(--tiny-letter-spacing);
+}
 
+.section-header p {
+	margin: 0;
+	color: var(--tiny-text-secondary);
+	font-size: var(--tiny-font-size-sm);
+	line-height: 1.4;
+}
+
+/* Responsive section headers */
+@media (max-width: 768px) {
+	.section-header {
+		padding: var(--tiny-spacing-lg);
+		margin: var(--tiny-spacing-md) 0;
+	}
+	
+	.section-header h3 {
+		font-size: var(--tiny-font-size-md);
+	}
+}

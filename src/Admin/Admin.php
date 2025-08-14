@@ -9,6 +9,7 @@ namespace TinyWpModules\Admin;
 
 use TinyWpModules\Admin\Settings;
 use TinyWpModules\Admin\Elementor_Manager;
+use TinyWpModules\Admin\Settings_Config;
 
 /**
  * Admin functionality
@@ -334,7 +335,7 @@ class Admin {
 	 * Handle settings form submission
 	 */
 	public function handle_settings_submission() {
-		if ( ! isset( $_POST['tiny_wp_modules_nonce'] ) || ! wp_verify_nonce( $_POST['tiny_wp_modules_nonce'], 'tiny_wp_modules_save_settings' ) ) {
+		if ( ! isset( $_POST['tiny_wp_modules_nonce'] ) || ! Settings_Config::verify_nonce( $_POST['tiny_wp_modules_nonce'] ) ) {
 			error_log('Tiny WP Modules: Nonce verification failed');
 			return;
 		}
@@ -351,23 +352,15 @@ class Admin {
 		global $tiny_wp_modules_plugin;
 		$plugin_slug = $tiny_wp_modules_plugin ? $tiny_wp_modules_plugin->get_plugin_slug() : 'tiny-wp-modules';
 
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
+		$settings = Settings_Config::get_all_settings();
 		
 		// Process settings based on current tab to avoid overwriting other tab data
 		switch ( $current_tab ) {
 			case 'general':
-				// General tab settings
-				$settings['enable_faq'] = isset( $_POST['tiny_wp_modules_settings']['enable_faq'] ) ? '1' : '0';
-				$settings['enable_elementor'] = isset( $_POST['tiny_wp_modules_settings']['enable_elementor'] ) ? '1' : '0';
-				
-				// FAQ settings (only if FAQ is enabled)
-				if ( isset( $_POST['tiny_wp_modules_settings']['faq_label'] ) ) {
-					$settings['faq_label'] = sanitize_text_field( $_POST['tiny_wp_modules_settings']['faq_label'] );
-				}
-				
-				if ( isset( $_POST['tiny_wp_modules_settings']['faq_slug'] ) ) {
-					$settings['faq_slug'] = sanitize_title( $_POST['tiny_wp_modules_settings']['faq_slug'] );
-				}
+				// Process general tab settings using centralized configuration
+				$post_settings = $_POST[ Settings_Config::OPTION_NAME ] ?? array();
+				$general_settings = Settings_Config::sanitize_settings( $post_settings );
+				$settings = array_merge( $settings, $general_settings );
 				break;
 				
 			case 'advanced':
@@ -424,7 +417,10 @@ class Admin {
 				
 			case 'elementor':
 				// Elementor tab settings
-				$settings['enable_elementor'] = isset( $_POST['tiny_wp_modules_settings']['enable_elementor'] ) ? '1' : '0';
+				$post_settings = $_POST[ Settings_Config::OPTION_NAME ] ?? array();
+				$elementor_settings = array();
+				
+				$elementor_settings['enable_elementor'] = isset( $post_settings['enable_elementor'] ) ? '1' : '0';
 				
 				// Elementor module settings
 				$elementor_modules = array(
@@ -434,7 +430,7 @@ class Admin {
 				);
 				
 				foreach ( $elementor_modules as $module ) {
-					$settings[ $module ] = isset( $_POST['tiny_wp_modules_settings'][ $module ] ) ? '1' : '0';
+					$elementor_settings[ $module ] = isset( $post_settings[ $module ] ) ? '1' : '0';
 				}
 				
 				// Get all Elementor items dynamically from modules
@@ -443,13 +439,15 @@ class Admin {
 					$items = Elementor_Manager::get_module_items( $module_type );
 					foreach ( $items as $item ) {
 						$item_id = $item['id'];
-						$settings[ $item_id ] = isset( $_POST['tiny_wp_modules_settings'][ $item_id ] ) ? '1' : '0';
+						$elementor_settings[ $item_id ] = isset( $post_settings[ $item_id ] ) ? '1' : '0';
 					}
 				}
+				
+				$settings = array_merge( $settings, $elementor_settings );
 				break;
 		}
 
-		$result = update_option( 'tiny_wp_modules_settings', $settings );
+		$result = Settings_Config::update_settings( $settings );
 		
 		// Redirect to prevent form resubmission, preserving the current tab
 		$redirect_url = add_query_arg( 

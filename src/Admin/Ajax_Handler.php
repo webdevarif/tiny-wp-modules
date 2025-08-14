@@ -7,7 +7,7 @@
 
 namespace TinyWpModules\Admin;
 
-
+use TinyWpModules\Admin\Settings_Config;
 
 /**
  * AJAX functionality
@@ -29,7 +29,7 @@ class Ajax_Handler {
 	 */
 	public function save_elementor_setting() {
 		// Check nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'tiny_wp_modules_ajax_nonce' ) ) {
+		if ( ! Settings_Config::verify_ajax_nonce( $_POST['nonce'] ?? '' ) ) {
 			wp_send_json_error( __( 'Security check failed.', 'tiny-wp-modules' ) );
 		}
 
@@ -46,14 +46,8 @@ class Ajax_Handler {
 			wp_send_json_error( __( 'Setting ID is required.', 'tiny-wp-modules' ) );
 		}
 
-		// Get current settings
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
-		
 		// Update the specific setting
-		$settings[ $setting_id ] = $setting_value;
-		
-		// Save settings
-		$result = update_option( 'tiny_wp_modules_settings', $settings );
+		$result = Settings_Config::update_setting( $setting_id, $setting_value );
 		
 		if ( $result ) {
 			wp_send_json_success( array(
@@ -70,8 +64,8 @@ class Ajax_Handler {
 	 * Save general settings via AJAX
 	 */
 	public function save_general_settings() {
-		// Check nonce - use the form nonce since this is called via form submission
-		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'tiny_wp_modules_save_settings' ) ) {
+		// Check nonce
+		if ( ! Settings_Config::verify_nonce( $_POST['nonce'] ?? '' ) ) {
 			error_log('Tiny WP Modules: Nonce verification failed');
 			wp_send_json_error( __( 'Security check failed.', 'tiny-wp-modules' ) );
 		}
@@ -81,29 +75,19 @@ class Ajax_Handler {
 			wp_send_json_error( __( 'You do not have permission to perform this action.', 'tiny-wp-modules' ) );
 		}
 
-		// Get current settings
-		$settings = get_option( 'tiny_wp_modules_settings', array() );
+		// Get settings from POST data
+		$post_settings = $_POST[ Settings_Config::OPTION_NAME ] ?? array();
 		
-		// Update general settings
-		$settings['enable_faq'] = isset( $_POST['tiny_wp_modules_settings']['enable_faq'] ) ? '1' : '0';
-		$settings['enable_elementor'] = isset( $_POST['tiny_wp_modules_settings']['enable_elementor'] ) ? '1' : '0';
-		
-		// FAQ settings (only if FAQ is enabled)
-		if ( isset( $_POST['tiny_wp_modules_settings']['faq_label'] ) ) {
-			$settings['faq_label'] = sanitize_text_field( $_POST['tiny_wp_modules_settings']['faq_label'] );
-		}
-		
-		if ( isset( $_POST['tiny_wp_modules_settings']['faq_slug'] ) ) {
-			$settings['faq_slug'] = sanitize_title( $_POST['tiny_wp_modules_settings']['faq_slug'] );
-		}
+		// Sanitize and save all settings
+		$sanitized_settings = Settings_Config::sanitize_settings( $post_settings );
 		
 		// Save settings
-		$result = update_option( 'tiny_wp_modules_settings', $settings );
+		$result = Settings_Config::update_settings( $sanitized_settings );
 		
 		if ( $result ) {
 			wp_send_json_success( array(
 				'message' => __( 'General settings saved successfully.', 'tiny-wp-modules' ),
-				'settings' => $settings
+				'settings' => $sanitized_settings
 			) );
 		} else {
 			wp_send_json_error( __( 'Failed to save general settings.', 'tiny-wp-modules' ) );
