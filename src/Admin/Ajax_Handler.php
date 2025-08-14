@@ -20,6 +20,7 @@ class Ajax_Handler {
 	public function __construct() {
 		add_action( 'wp_ajax_save_elementor_setting', array( $this, 'save_elementor_setting' ) );
 		add_action( 'wp_ajax_save_general_settings', array( $this, 'save_general_settings' ) );
+		add_action( 'wp_ajax_force_update_check', array( $this, 'force_update_check' ) );
 	}
 
 
@@ -107,5 +108,28 @@ class Ajax_Handler {
 		} else {
 			wp_send_json_error( __( 'Failed to save general settings.', 'tiny-wp-modules' ) );
 		}
+	}
+	
+	/**
+	 * Force update check via AJAX
+	 */
+	public function force_update_check() {
+		// Check nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'force_update_check' ) ) {
+			wp_send_json_error( __( 'Security check failed.', 'tiny-wp-modules' ) );
+		}
+
+		// Check permissions
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			wp_send_json_error( __( 'You do not have permission to perform this action.', 'tiny-wp-modules' ) );
+		}
+
+		// Force WordPress to check for updates
+		delete_site_transient( 'update_plugins' );
+		wp_update_plugins();
+		
+		wp_send_json_success( array(
+			'message' => __( 'Update check completed successfully.', 'tiny-wp-modules' )
+		) );
 	}
 } 

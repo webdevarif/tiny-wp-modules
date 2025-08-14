@@ -176,25 +176,45 @@ function tiny_wp_modules_init_github_updater() {
 	// Optional: Set tested WordPress version
 	$updater->setTestedWpVersion( '6.4' );
 
-	// Debug: Log GitHub information and test connection
-	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		$github_info = $updater->getGitHubInfo();
-		error_log( 'GitHubUpdater Debug: GitHub Info: ' . print_r( $github_info, true ) );
-		
-		// Test GitHub connection and log results
-		$connection_test = $updater->testGitHubConnection();
-		error_log( 'GitHubUpdater Debug: Connection Test: ' . print_r( $connection_test, true ) );
-		
-		// Add admin notice for debugging
-		add_action( 'admin_notices', function() use ( $updater ) {
+			// Debug: Log GitHub information and test connection
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$github_info = $updater->getGitHubInfo();
+			error_log( 'GitHubUpdater Debug: GitHub Info: ' . print_r( $github_info, true ) );
+			
+			// Test GitHub connection and log results
 			$connection_test = $updater->testGitHubConnection();
-			if ( $connection_test['success'] ) {
-				echo '<div class="notice notice-success"><p><strong>GitHubUpdater:</strong> Successfully connected to repository: <code>' . esc_html( $connection_test['repository_name'] ) . '</code></p></div>';
-			} else {
-				echo '<div class="notice notice-error"><p><strong>GitHubUpdater Error:</strong> ' . esc_html( $connection_test['error'] ) . '</p></div>';
-			}
-		});
-	}
+			error_log( 'GitHubUpdater Debug: Connection Test: ' . print_r( $connection_test, true ) );
+			
+			// Check for updates
+			$update_check = $updater->checkForUpdates();
+			error_log( 'GitHubUpdater Debug: Update Check: ' . print_r( $update_check, true ) );
+			
+			// Add admin notice for debugging
+			add_action( 'admin_notices', function() use ( $updater ) {
+				$connection_test = $updater->testGitHubConnection();
+				$update_check = $updater->checkForUpdates();
+				
+				if ( $connection_test['success'] ) {
+					echo '<div class="notice notice-success"><p><strong>GitHubUpdater:</strong> Successfully connected to repository: <code>' . esc_html( $connection_test['repository_name'] ) . '</code></p></div>';
+					
+					// Show update status
+					if ( $update_check['success'] ) {
+						$status_class = $update_check['update_available'] ? 'notice-warning' : 'notice-info';
+						$status_text = $update_check['update_available'] ? 'Update Available!' : 'Plugin is up to date';
+						echo '<div class="notice ' . $status_class . '"><p><strong>GitHubUpdater:</strong> ' . $status_text . ' (Current: ' . esc_html( $update_check['current_version'] ) . ', Latest: ' . esc_html( $update_check['latest_version'] ) . ')</p></div>';
+						
+						// Add manual update check button if update is available
+						if ( $update_check['update_available'] ) {
+							echo '<div class="notice notice-warning"><p><strong>GitHubUpdater:</strong> <a href="' . admin_url( 'update-core.php' ) . '" class="button button-primary">Go to Updates</a> or <button type="button" class="button button-secondary" onclick="jQuery.post(ajaxurl, {action: \'force_update_check\', nonce: \'' . wp_create_nonce( 'force_update_check' ) . '\'}, function(response) { location.reload(); });">Check Now</button></p></div>';
+						}
+					} else {
+						echo '<div class="notice notice-error"><p><strong>GitHubUpdater Error:</strong> ' . esc_html( $update_check['error'] ) . '</p></div>';
+					}
+				} else {
+					echo '<div class="notice notice-error"><p><strong>GitHubUpdater Error:</strong> ' . esc_html( $connection_test['error'] ) . '</p></div>';
+				}
+			});
+		}
 
 	// Add the updater to WordPress
 	$updater->add();

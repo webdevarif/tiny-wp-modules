@@ -236,6 +236,36 @@ class GitHubUpdater {
 	}
 
 	/**
+	 * Check for available updates
+	 *
+	 * @return array Update check results.
+	 */
+	public function checkForUpdates(): array {
+		$latestVersion = $this->getLatestVersion();
+		$currentVersion = $this->pluginVersion;
+		
+		if ( ! $latestVersion ) {
+			return array(
+				'success' => false,
+				'error' => 'Could not fetch latest version from GitHub',
+				'current_version' => $currentVersion,
+				'latest_version' => null,
+				'update_available' => false
+			);
+		}
+		
+		$updateAvailable = version_compare( $currentVersion, $latestVersion, '<' );
+		
+		return array(
+			'success' => true,
+			'current_version' => $currentVersion,
+			'latest_version' => $latestVersion,
+			'update_available' => $updateAvailable,
+			'version_comparison' => version_compare( $currentVersion, $latestVersion, '>=' )
+		);
+	}
+
+	/**
 	 * Test GitHub API connection
 	 *
 	 * @return array Test results.
@@ -282,6 +312,21 @@ class GitHubUpdater {
 				'error' => 'API response error. Status: ' . $status_code . ', Response: ' . $body,
 				'github_info' => $this->getGitHubInfo()
 			);
+		}
+	}
+
+	/**
+	 * Manually trigger update check
+	 */
+	public function forceUpdateCheck(): void {
+		// Clear any cached update data
+		delete_site_transient( 'update_plugins' );
+		
+		// Force WordPress to check for updates
+		wp_update_plugins();
+		
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'GitHubUpdater: Forced update check triggered' );
 		}
 	}
 
@@ -405,7 +450,17 @@ class GitHubUpdater {
 		}
 
 		$latestVersion = $this->getLatestVersion();
+		
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'GitHubUpdater Debug: Current plugin version: ' . $this->pluginVersion );
+			error_log( 'GitHubUpdater Debug: Latest GitHub version: ' . $latestVersion );
+			error_log( 'GitHubUpdater Debug: Version comparison result: ' . version_compare( $this->pluginVersion, $latestVersion, '>=' ) );
+		}
+		
 		if ( ! $latestVersion || version_compare( $this->pluginVersion, $latestVersion, '>=' ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater Debug: No update needed or version comparison failed' );
+			}
 			return array();
 		}
 
@@ -437,13 +492,61 @@ class GitHubUpdater {
 
 		$response = wp_remote_get( $apiUrl );
 		if ( is_wp_error( $response ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater Error: Failed to fetch latest version: ' . $response->get_error_message() );
+			}
 			return false;
 		}
 
 		$body = wp_remote_retrieve_body( $response );
 		$data = json_decode( $body, true );
 
-		return $data['tag_name'] ?? false;
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'GitHubUpdater Debug: API Response: ' . print_r( $data, true ) );
+		}
+
+		$tag_name = $data['tag_name'] ?? false;
+		
+		if ( $tag_name ) {
+			// Clean the tag name to extract a valid version
+			$clean_version = $this->cleanVersionFromTag( $tag_name );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater Debug: Original tag: ' . $tag_name . ', Cleaned version: ' . $clean_version );
+			}
+			return $clean_version;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Clean version string from GitHub tag
+	 *
+	 * @param string $tag_name GitHub tag name.
+	 * @return string Cleaned version string.
+	 */
+	private function cleanVersionFromTag( string $tag_name ): string {
+		// Remove 'v' prefix if present
+		$version = ltrim( $tag_name, 'v' );
+		
+		// Remove common suffixes like -tag, -release, -beta, etc.
+		$version = preg_replace( '/-(tag|release|beta|alpha|rc|dev).*$/i', '', $version );
+		
+		// Ensure it's a valid semantic version format
+		if ( preg_match( '/^\d+\.\d+(\.\d+)?/', $version ) ) {
+			return $version;
+		}
+		
+		// If still not valid, try to extract just the numbers
+		if ( preg_match( '/(\d+)\.(\d+)(?:\.(\d+))?/', $version, $matches ) ) {
+			$major = $matches[1];
+			$minor = $matches[2];
+			$patch = isset( $matches[3] ) ? $matches[3] : '0';
+			return $major . '.' . $minor . '.' . $patch;
+		}
+		
+		// Fallback: return original tag name
+		return $tag_name;
 	}
 
 	/**
