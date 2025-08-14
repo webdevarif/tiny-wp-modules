@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Tiny WP Modules
- * Plugin URI: https://digitalfarmers.com/tiny-wp-modules
+ * Plugin URI: https://github.com/webdevarif/tiny-wp-modules
  * Description: A modular WordPress plugin with OOP architecture and Composer autoloading
  * Version: 1.0.0
  * Author: Digital Farmers
@@ -118,6 +118,68 @@ function tiny_wp_modules_init() {
 	// Initialize the main plugin class
 	$tiny_wp_modules_plugin = new TinyWpModules\Core\Plugin();
 	$tiny_wp_modules_plugin->init();
+
+	// Initialize GitHub Updater for automatic updates
+	tiny_wp_modules_init_github_updater();
+}
+
+/**
+ * Initialize GitHub Updater
+ */
+function tiny_wp_modules_init_github_updater() {
+	// Check if GitHubUpdater class exists
+	if ( ! class_exists( 'TinyWpModules\\Admin\\GitHubUpdater' ) ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'GitHubUpdater Error: GitHubUpdater class not found' );
+		}
+		return;
+	}
+
+	// Create GitHub Updater instance
+	$updater = new TinyWpModules\Admin\GitHubUpdater( __FILE__ );
+
+	// Try to refresh GitHub information first
+	$updater->refreshGitHubInfo();
+	
+	// If still not configured, set it manually as fallback
+	if ( ! $updater->isGitHubConfigured() ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'GitHubUpdater: Plugin header parsing failed, using manual fallback' );
+		}
+		$updater->setGitHubRepository( 'webdevarif', 'tiny-wp-modules', 'main' );
+	}
+
+	// Optional: Set custom branch (defaults to 'main')
+	// $updater->setBranch( 'master' );
+
+	// Optional: Set access token for private repositories
+	// $updater->setAccessToken( 'your_github_token_here' );
+
+	// Optional: Set tested WordPress version
+	$updater->setTestedWpVersion( '6.4' );
+
+	// Debug: Log GitHub information and test connection
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		$github_info = $updater->getGitHubInfo();
+		error_log( 'GitHubUpdater Debug: GitHub Info: ' . print_r( $github_info, true ) );
+		
+		// Test GitHub connection and log results
+		$connection_test = $updater->testGitHubConnection();
+		error_log( 'GitHubUpdater Debug: Connection Test: ' . print_r( $connection_test, true ) );
+		
+		// Add admin notice for debugging
+		add_action( 'admin_notices', function() use ( $updater ) {
+			$connection_test = $updater->testGitHubConnection();
+			if ( $connection_test['success'] ) {
+				echo '<div class="notice notice-success"><p><strong>GitHubUpdater:</strong> Successfully connected to repository: <code>' . esc_html( $connection_test['repository_name'] ) . '</code></p></div>';
+			} else {
+				echo '<div class="notice notice-error"><p><strong>GitHubUpdater Error:</strong> ' . esc_html( $connection_test['error'] ) . '</p></div>';
+			}
+		});
+	}
+
+	// Add the updater to WordPress
+	$updater->add();
 }
 
 /**

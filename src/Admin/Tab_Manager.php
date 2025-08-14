@@ -27,13 +27,7 @@ class Tab_Manager {
 				'description' => __( 'Configure general plugin settings and module options', 'tiny-wp-modules' ),
 				'always_visible' => true
 			),
-			'updates' => array(
-				'label' => __( 'Updates', 'tiny-wp-modules' ),
-				'icon' => self::get_updates_icon(),
-				'icon_type' => 'inline_svg',
-				'description' => __( 'Manage plugin updates and version information', 'tiny-wp-modules' ),
-				'always_visible' => true
-			),
+
 			'advanced' => array(
 				'label' => __( 'Advanced', 'tiny-wp-modules' ),
 				'icon' => self::get_advanced_icon(),
@@ -174,19 +168,7 @@ class Tab_Manager {
 		</svg>';
 	}
 
-	/**
-	 * Get Updates tab icon SVG
-	 *
-	 * @return string SVG icon HTML.
-	 */
-	private static function get_updates_icon() {
-		return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="tab-icon-svg">
-			<path opacity="0.4" d="M20.5 5.5H9.5C5.78672 5.5 3 8.18503 3 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-			<path opacity="0.4" d="M3.5 18.5H14.5C18.2133 18.5 21 15.815 21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M18.5 3C18.5 3 21 4.84122 21 5.50002C21 6.15882 18.5 8 18.5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M5.49998 16C5.49998 16 3.00001 17.8412 3 18.5C2.99999 19.1588 5.5 21 5.5 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-		</svg>';
-	}
+
 
 	/**
 	 * Get Advanced tab icon SVG
