@@ -449,34 +449,60 @@ class GitHubUpdater {
 			return $response;
 		}
 
-		$latestVersion = $this->getLatestVersion();
-		
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'GitHubUpdater Debug: Current plugin version: ' . $this->pluginVersion );
-			error_log( 'GitHubUpdater Debug: Latest GitHub version: ' . $latestVersion );
-			error_log( 'GitHubUpdater Debug: Version comparison result: ' . version_compare( $this->pluginVersion, $latestVersion, '>=' ) );
-		}
-		
-		if ( ! $latestVersion || version_compare( $this->pluginVersion, $latestVersion, '>=' ) ) {
+		try {
+			$latestVersion = $this->getLatestVersion();
+			
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'GitHubUpdater Debug: No update needed or version comparison failed' );
+				error_log( 'GitHubUpdater Debug: Current plugin version: ' . $this->pluginVersion );
+				error_log( 'GitHubUpdater Debug: Latest GitHub version: ' . $latestVersion );
+				error_log( 'GitHubUpdater Debug: Version comparison result: ' . version_compare( $this->pluginVersion, $latestVersion, '>=' ) );
+			}
+			
+			if ( ! $latestVersion ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater Debug: Could not fetch latest version from GitHub' );
+				}
+				return array();
+			}
+
+			if ( version_compare( $this->pluginVersion, $latestVersion, '>=' ) ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater Debug: No update needed - current version is up to date' );
+				}
+				return array();
+			}
+
+			// Validate that we have all required information
+			if ( empty( $this->gitHubPath ) || empty( $this->pluginFile ) ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater Debug: Missing required information for update' );
+				}
+				return array();
+			}
+
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater Debug: Update available - returning update response' );
+			}
+
+			return array(
+				$this->pluginFile => (object) array(
+					'id'          => $this->gitHubUrl,
+					'slug'        => $this->pluginSlug,
+					'plugin'      => $this->pluginFile,
+					'version'     => $latestVersion,
+					'url'         => $this->gitHubUrl,
+					'package'     => $this->getPrivateRemotePluginZipFile(),
+					'icons'       => array(),
+					'tested'      => $this->testedWpVersion,
+					'new_version' => $latestVersion,
+				),
+			);
+		} catch ( Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater Error: Exception in _updateResponse: ' . $e->getMessage() );
 			}
 			return array();
 		}
-
-		return array(
-			$this->pluginFile => (object) array(
-				'id'          => $this->gitHubUrl,
-				'slug'        => $this->pluginSlug,
-				'plugin'      => $this->pluginFile,
-				'version'     => $latestVersion,
-				'url'         => $this->gitHubUrl,
-				'package'     => $this->getPrivateRemotePluginZipFile(),
-				'icons'       => array(),
-				'tested'      => $this->testedWpVersion,
-				'new_version' => $latestVersion,
-			),
-		);
 	}
 
 	/**
@@ -485,38 +511,85 @@ class GitHubUpdater {
 	 * @return string|false Latest version or false on failure.
 	 */
 	private function getLatestVersion() {
-		$apiUrl = sprintf(
-			'https://api.github.com/repos/%s/releases/latest',
-			$this->gitHubPath
-		);
+		try {
+			if ( empty( $this->gitHubPath ) ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater Error: GitHub path is empty' );
+				}
+				return false;
+			}
 
-		$response = wp_remote_get( $apiUrl );
-		if ( is_wp_error( $response ) ) {
+			$apiUrl = sprintf(
+				'https://api.github.com/repos/%s/releases/latest',
+				$this->gitHubPath
+			);
+
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'GitHubUpdater Error: Failed to fetch latest version: ' . $response->get_error_message() );
+				error_log( 'GitHubUpdater Debug: Fetching from API: ' . $apiUrl );
+			}
+
+			$response = wp_remote_get( $apiUrl, array(
+				'timeout' => 15,
+				'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' )
+			) );
+
+			if ( is_wp_error( $response ) ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater Error: Failed to fetch latest version: ' . $response->get_error_message() );
+				}
+				return false;
+			}
+
+			$status_code = wp_remote_retrieve_response_code( $response );
+			if ( $status_code !== 200 ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater Error: API returned status code: ' . $status_code );
+				}
+				return false;
+			}
+
+			$body = wp_remote_retrieve_body( $response );
+			if ( empty( $body ) ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater Error: Empty response body from GitHub API' );
+				}
+				return false;
+			}
+
+			$data = json_decode( $body, true );
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater Error: Failed to parse JSON response: ' . json_last_error_msg() );
+				}
+				return false;
+			}
+
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater Debug: API Response: ' . print_r( $data, true ) );
+			}
+
+			$tag_name = $data['tag_name'] ?? false;
+			
+			if ( $tag_name ) {
+				// Clean the tag name to extract a valid version
+				$clean_version = $this->cleanVersionFromTag( $tag_name );
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater Debug: Original tag: ' . $tag_name . ', Cleaned version: ' . $clean_version );
+				}
+				return $clean_version;
+			}
+
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater Debug: No tag_name found in API response' );
+			}
+
+			return false;
+		} catch ( Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater Error: Exception in getLatestVersion: ' . $e->getMessage() );
 			}
 			return false;
 		}
-
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
-
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'GitHubUpdater Debug: API Response: ' . print_r( $data, true ) );
-		}
-
-		$tag_name = $data['tag_name'] ?? false;
-		
-		if ( $tag_name ) {
-			// Clean the tag name to extract a valid version
-			$clean_version = $this->cleanVersionFromTag( $tag_name );
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'GitHubUpdater Debug: Original tag: ' . $tag_name . ', Cleaned version: ' . $clean_version );
-			}
-			return $clean_version;
-		}
-
-		return false;
 	}
 
 	/**
@@ -596,15 +669,57 @@ class GitHubUpdater {
 	 */
 	private function moveUpdatedPlugin(): void {
 		add_filter( 'upgrader_install_package_result', array( $this, '_moveUpdatedPlugin' ) );
+		
+		// Also add a filter to handle pre-update checks
+		add_filter( 'upgrader_pre_install', array( $this, '_preInstallCheck' ), 10, 2 );
+	}
+
+	/**
+	 * Pre-installation check to ensure we're updating the right plugin
+	 *
+	 * @param bool|WP_Error $response Response.
+	 * @param array         $hook_extra Extra arguments.
+	 * @return bool|WP_Error Response.
+	 */
+	public function _preInstallCheck( $response, $hook_extra ) {
+		// If there's already an error, return it
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		// Check if this is our plugin being updated
+		if ( isset( $hook_extra['plugin'] ) && $hook_extra['plugin'] === $this->pluginFile ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater: Pre-install check passed for plugin: ' . $this->pluginFile );
+			}
+		}
+
+		return $response;
 	}
 
 	/**
 	 * Move new plugin to where old plugin was located
 	 *
-	 * @param array $result Installation result.
-	 * @return array Modified installation result.
+	 * @param array|WP_Error $result Installation result.
+	 * @return array|WP_Error Modified installation result.
 	 */
-	public function _moveUpdatedPlugin( array $result ): array {
+	public function _moveUpdatedPlugin( $result ) {
+		// If it's a WP_Error, return it as-is without modification
+		if ( is_wp_error( $result ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater: Update failed with error: ' . $result->get_error_message() );
+			}
+			return $result;
+		}
+
+		// Ensure we have an array
+		if ( ! is_array( $result ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'GitHubUpdater: Unexpected result type: ' . gettype( $result ) );
+			}
+			return $result;
+		}
+
 		$newPluginPath = $result['destination'] ?? '';
 
 		if ( ! $newPluginPath ) {
@@ -616,10 +731,20 @@ class GitHubUpdater {
 
 		// Move the new plugin to the old plugin location
 		if ( function_exists( 'move_dir' ) ) {
-			move_dir( $newPluginPath, $oldPluginPath );
+			$move_result = move_dir( $newPluginPath, $oldPluginPath );
+			if ( ! $move_result ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater: Failed to move directory from ' . $newPluginPath . ' to ' . $oldPluginPath );
+				}
+			}
 		} else {
 			// Fallback for older WordPress versions
-			rename( $newPluginPath, $oldPluginPath );
+			$rename_result = rename( $newPluginPath, $oldPluginPath );
+			if ( ! $rename_result ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'GitHubUpdater: Failed to rename directory from ' . $newPluginPath . ' to ' . $oldPluginPath );
+				}
+			}
 		}
 
 		$result['destination'] = $oldPluginPath;
