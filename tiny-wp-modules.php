@@ -33,6 +33,12 @@ define( 'TINY_WP_MODULES_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 // Autoloader
 if ( file_exists( TINY_WP_MODULES_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 	require_once TINY_WP_MODULES_PLUGIN_DIR . 'vendor/autoload.php';
+} else {
+	// If autoloader is missing, show admin notice
+	add_action( 'admin_notices', function() {
+		echo '<div class="notice notice-error"><p><strong>Tiny WP Modules:</strong> Composer autoloader is missing. Please run <code>composer install</code> in the plugin directory.</p></div>';
+	});
+	return; // Don't continue if autoloader is missing
 }
 
 // Activation and deactivation hooks
@@ -77,9 +83,21 @@ function tiny_icon( $path ) {
  */
 function tiny_wp_modules_activate() {
 	// Check if Composer autoloader is available
-	if ( ! class_exists( 'TinyWpModules\\Core\\Activator' ) ) {
+	if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 		wp_die( 
 			esc_html__( 'Tiny WP Modules requires Composer dependencies to be installed. Please run composer install in the plugin directory.', 'tiny-wp-modules' ),
+			esc_html__( 'Plugin Activation Error', 'tiny-wp-modules' ),
+			array( 'back_link' => true )
+		);
+	}
+
+	// Include the autoloader
+	require_once __DIR__ . '/vendor/autoload.php';
+
+	// Check if Activator class exists after loading autoloader
+	if ( ! class_exists( 'TinyWpModules\\Core\\Activator' ) ) {
+		wp_die( 
+			esc_html__( 'Tiny WP Modules could not load required classes. Please check if all files are properly uploaded.', 'tiny-wp-modules' ),
 			esc_html__( 'Plugin Activation Error', 'tiny-wp-modules' ),
 			array( 'back_link' => true )
 		);

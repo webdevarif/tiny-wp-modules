@@ -1,5 +1,5 @@
 # Composer
-/vendor/
+# /vendor/ - Removed to include dependencies in releases
 composer.lock
 
 # IDE
