@@ -55,8 +55,8 @@ if ( ! has_action( 'admin_init', array( 'TinyWpModules\Admin\Settings', 'registe
 // Get current tab
 $current_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'general';
 
-// Get settings
-$settings = get_option( 'tiny_wp_modules_settings', array() );
+// Get settings using Settings_Config
+$settings = \TinyWpModules\Admin\Settings_Config::get_all_settings();
 
 // Get tabs using Tab_Manager
 $tabs = Tab_Manager::get_tabs( $settings );
@@ -96,19 +96,14 @@ $tabs = Tab_Manager::get_tabs( $settings );
 		</div>
 		
 		<!-- Success Notification -->
-		<?php 
-		// Debug: Check if settings-updated parameter is received
-		error_log( 'Tiny WP Modules Template: $_GET contents: ' . print_r( $_GET, true ) );
-		error_log( 'Tiny WP Modules Template: settings-updated value: ' . ( $_GET['settings-updated'] ?? 'not set' ) );
-		?>
 		<?php if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] === 'true' ) : ?>
 			<div class="tiny-wp-modules-notification success">
 				<div class="notification-content">
 					<span class="notification-text"><?php esc_html_e( 'Settings saved successfully!', 'tiny-wp-modules' ); ?></span>
 					<button class="notification-close" type="button" aria-label="<?php esc_attr_e( 'Close', 'tiny-wp-modules' ); ?>">
 						<span class="dashicons dashicons-no-alt"></span>
-			</button>
-		</div>
+					</button>
+				</div>
 			</div>
 		<?php endif; ?>
 
@@ -129,16 +124,11 @@ $tabs = Tab_Manager::get_tabs( $settings );
 						<?php wp_nonce_field( 'tiny_wp_modules_save_settings', 'tiny_wp_modules_nonce' ); ?>
 						<input type="hidden" name="current_tab" value="<?php echo esc_attr( $current_tab ); ?>">
 						
-						<!-- Debug: Show form action -->
-						<div style="background: #f0f0f0; padding: 5px; margin: 5px 0; font-size: 12px; border: 1px solid #ccc;">
-							<strong>Debug:</strong> Form action: <?php echo admin_url( 'admin-post.php' ); ?>
-						</div>
-						
 						<!-- Critical Settings - Always Include -->
 						<input type="hidden" name="tiny_wp_modules_settings[enable_elementor]" value="<?php echo isset( $settings['enable_elementor'] ) ? esc_attr( $settings['enable_elementor'] ) : '0'; ?>">
 						
 						<!-- Tab Content -->
-												<?php 
+						<?php 
 						// Include the appropriate tab template
 						$tab_template_path = Tab_Manager::get_tab_template_path( $current_tab );
 						if ( ! empty( $tab_template_path ) && file_exists( $tab_template_path ) ) {
@@ -148,8 +138,7 @@ $tabs = Tab_Manager::get_tabs( $settings );
 							echo '<div class="tab-content" id="' . esc_attr( $current_tab ) . '-tab">';
 							echo '<div class="notice notice-warning"><p>' . esc_html__( 'Tab content template not found.', 'tiny-wp-modules' ) . '</p></div>';
 							echo '</div>';
-						}
-						?>
+						} ?>
 						
 						<!-- Submit Button -->
 						<div class="form-submit-section">

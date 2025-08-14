@@ -146,7 +146,8 @@ class Components {
 			echo '<div class="user-roles-grid">';
 			
 			foreach ( $roles as $role_slug => $role_name ) {
-				$checked = in_array( $role_slug, $selected_roles ) ? true : false;
+				// Check if this role is enabled (value should be '1' for enabled roles)
+				$checked = isset( $selected_roles[ $role_slug ] ) && $selected_roles[ $role_slug ] === '1';
 				
 				// Use the reusable switch component for each role
 				echo self::render_switch( array(
@@ -190,7 +191,8 @@ class Components {
 			echo '<div class="user-roles-grid">';
 			
 			foreach ( $roles as $role_slug => $role_name ) {
-				$checked = in_array( $role_slug, $selected_roles ) ? true : false;
+				// Check if this role is enabled (value should be '1' for enabled roles)
+				$checked = isset( $selected_roles[ $role_slug ] ) && $selected_roles[ $role_slug ] === '1';
 				
 				// Use the reusable switch component for each role
 				echo self::render_switch( array(
@@ -658,7 +660,7 @@ class Components {
 
 			<!-- Configuration Fields -->
 			<?php if ( ! empty( $args['config_fields'] ) ) : ?>
-				<div class="config-fields-section" 
+				<div class="config-fields-section <?php echo $args['checked'] ? 'show' : ''; ?> collapsed" 
 					 id="config-<?php echo esc_attr( $args['data_toggle'] ); ?>" 
 					 data-toggle-target="<?php echo esc_attr( $args['data_toggle'] ); ?>"
 					 x-show="configVisible"

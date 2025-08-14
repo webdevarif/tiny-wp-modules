@@ -52,8 +52,6 @@ class Admin {
 		// Hook form submission handler - use admin_post for form submissions
 		add_action( 'admin_post_tiny_wp_modules_save_settings', array( $this, 'handle_settings_submission' ) );
 		add_action( 'admin_post_nopriv_tiny_wp_modules_save_settings', array( $this, 'handle_settings_submission' ) );
-		
-		error_log('Tiny WP Modules: Admin constructor called, form handler hooked to admin_post');
 	}
 
 	/**
@@ -143,16 +141,11 @@ class Admin {
 	private function is_plugin_page() {
 		$screen = get_current_screen();
 		if ( ! $screen ) {
-			error_log( 'Tiny WP Modules: No screen found' );
 			return false;
 		}
 		
 		$plugin_pages = $this->get_plugin_menu_pages();
 		$is_plugin_page = in_array( $screen->id, $plugin_pages );
-		
-		error_log( 'Tiny WP Modules: Screen ID: ' . $screen->id );
-		error_log( 'Tiny WP Modules: Plugin pages: ' . implode( ', ', $plugin_pages ) );
-		error_log( 'Tiny WP Modules: Is plugin page: ' . ( $is_plugin_page ? 'YES' : 'NO' ) );
 		
 		return $is_plugin_page;
 	}
@@ -164,9 +157,6 @@ class Admin {
 		// Use constants for asset URLs
 		$script_url = TINY_WP_MODULES_PLUGIN_URL . 'assets/js/admin.js';
 		$style_url = TINY_WP_MODULES_PLUGIN_URL . 'assets/css/admin.css';
-		
-		error_log( 'Tiny WP Modules: Registering script - ' . $script_url );
-		error_log( 'Tiny WP Modules: Plugin URL constant: ' . TINY_WP_MODULES_PLUGIN_URL );
 		
 		// Register Alpine.js first
 		wp_register_script(
@@ -196,8 +186,7 @@ class Admin {
 			)
 		);
 		
-		// Debug registration
-		error_log( 'Tiny WP Modules: Script registration result: ' . ( $registered ? 'SUCCESS' : 'FAILED' ) );
+
 	}
 
 	/**
@@ -206,21 +195,13 @@ class Admin {
 	public function enqueue_scripts() {
 		$screen = get_current_screen();
 		
-		// Debug enqueue attempt
-		error_log( 'Tiny WP Modules: Enqueue attempt - Screen: ' . ( $screen ? $screen->id : 'null' ) );
-		
-		// Temporarily disable screen check for debugging
-		/*
 		// Only load on plugin pages
 		if ( ! $this->is_plugin_page() ) {
-			error_log( 'Tiny WP Modules: Script not enqueued - not a plugin page' );
 			return;
 		}
-		*/
 
 		// Enqueue registered scripts
 		wp_enqueue_script( $this->plugin_name . '-admin' );
-		error_log( 'Tiny WP Modules: Script enqueued successfully' );
 	}
 
 	/**
@@ -315,7 +296,6 @@ class Admin {
 	 * Admin page callback
 	 */
 	public function admin_page() {
-		error_log('Tiny WP Modules: admin_page() method called');
 		include TINY_WP_MODULES_PLUGIN_DIR . 'templates/admin/admin-page.php';
 	}
 
@@ -323,7 +303,6 @@ class Admin {
 	 * Settings page callback
 	 */
 	public function settings_page() {
-		error_log('Tiny WP Modules: settings_page() method called');
 		// Ensure Settings_Config class is loaded
 		if ( ! class_exists( 'TinyWpModules\\Admin\\Settings_Config' ) ) {
 			// This should not happen with proper autoloading, but just in case
@@ -346,29 +325,54 @@ class Admin {
 	}
 
 	/**
+	 * Process user roles from POST data
+	 *
+	 * @param array $posted_roles Posted roles data.
+	 * @return array Processed roles with all roles included.
+	 */
+	private function process_user_roles( $posted_roles ) {
+		// Get all available user roles dynamically
+		$all_roles = $this->get_all_user_roles();
+		$processed_roles = array();
+		
+		// Debug logging
+		error_log( 'Tiny WP Modules: Processing user roles. Posted roles: ' . print_r( $posted_roles, true ) );
+		error_log( 'Tiny WP Modules: All available roles: ' . print_r( $all_roles, true ) );
+		
+		// Process each role - if it's in POST data, it's checked (value = '1'), if not, it's unchecked
+		foreach ( $all_roles as $role_slug => $role_name ) {
+			if ( isset( $posted_roles[ $role_slug ] ) && $posted_roles[ $role_slug ] === '1' ) {
+				$processed_roles[ $role_slug ] = '1';
+			} else {
+				$processed_roles[ $role_slug ] = '0';
+			}
+		}
+		
+		error_log( 'Tiny WP Modules: Processed roles result: ' . print_r( $processed_roles, true ) );
+		
+		return $processed_roles;
+	}
+	
+	/**
+	 * Get all available user roles dynamically
+	 *
+	 * @return array Array of role slugs => role names.
+	 */
+	private function get_all_user_roles() {
+		// Get all WordPress user roles dynamically
+		return wp_roles()->get_names();
+	}
+
+	/**
 	 * Handle settings form submission
 	 */
 	public function handle_settings_submission() {
-		error_log('Tiny WP Modules: ==========================================');
-		error_log('Tiny WP Modules: handle_settings_submission method called');
-		error_log('Tiny WP Modules: REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
-		error_log('Tiny WP Modules: POST data count: ' . count( $_POST ));
-		error_log('Tiny WP Modules: Action field: ' . ( $_POST['action'] ?? 'NOT SET' ) );
-		error_log('Tiny WP Modules: Nonce field: ' . ( $_POST['tiny_wp_modules_nonce'] ?? 'NOT SET' ) );
-		error_log('Tiny WP Modules: Current tab: ' . ( $_POST['current_tab'] ?? 'NOT SET' ) );
-		error_log('Tiny WP Modules: ==========================================');
 		
 		if ( ! isset( $_POST['tiny_wp_modules_nonce'] ) || ! wp_verify_nonce( $_POST['tiny_wp_modules_nonce'], 'tiny_wp_modules_save_settings' ) ) {
-			error_log('Tiny WP Modules: Nonce verification failed');
-			error_log('Tiny WP Modules: Nonce field present: ' . ( isset( $_POST['tiny_wp_modules_nonce'] ) ? 'YES' : 'NO' ) );
-			if ( isset( $_POST['tiny_wp_modules_nonce'] ) ) {
-				error_log('Tiny WP Modules: Nonce value: ' . $_POST['tiny_wp_modules_nonce'] );
-			}
 			return;
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			error_log('Tiny WP Modules: User does not have manage_options capability');
 			return;
 		}
 
@@ -379,9 +383,7 @@ class Admin {
 		global $tiny_wp_modules_plugin;
 		$plugin_slug = $tiny_wp_modules_plugin ? $tiny_wp_modules_plugin->get_plugin_slug() : 'tiny-wp-modules';
 
-		// Debug: Log what's being submitted
-		error_log( 'Tiny WP Modules: POST data received: ' . print_r( $_POST, true ) );
-		error_log( 'Tiny WP Modules: Current tab: ' . $current_tab );
+
 
 		$settings = Settings_Config::get_all_settings();
 		
@@ -417,42 +419,18 @@ class Admin {
 					$settings['redirect_after_login_to_slug'] = sanitize_text_field( $_POST['tiny_wp_modules_settings']['redirect_after_login_to_slug'] );
 				}
 				
-				// Process redirect after login roles - handle both checked and unchecked states
-				$settings['redirect_after_login_for'] = array();
-				$all_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber', 'shop_manager', 'customer' );
-				
-				// Get the POST data for roles
+				// Process redirect after login roles
 				$posted_roles = $_POST['tiny_wp_modules_settings']['redirect_after_login_for'] ?? array();
-				
-				// Process each role - if it's in POST data, it's checked (value = '1'), if not, it's unchecked
-				foreach ( $all_roles as $role ) {
-					if ( isset( $posted_roles[ $role ] ) && $posted_roles[ $role ] === '1' ) {
-						$settings['redirect_after_login_for'][ $role ] = '1';
-					} else {
-						$settings['redirect_after_login_for'][ $role ] = '0';
-					}
-				}
+				$settings['redirect_after_login_for'] = $this->process_user_roles( $posted_roles );
 				
 				// Redirect After Logout settings
 				if ( isset( $_POST['tiny_wp_modules_settings']['redirect_after_logout_to_slug'] ) ) {
 					$settings['redirect_after_logout_to_slug'] = sanitize_text_field( $_POST['tiny_wp_modules_settings']['redirect_after_logout_to_slug'] );
 				}
 				
-				// Process redirect after logout roles - handle both checked and unchecked states
-				$settings['redirect_after_logout_for'] = array();
-				$all_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber', 'shop_manager', 'customer' );
-				
-				// Get the POST data for roles
+				// Process redirect after logout roles
 				$posted_roles = $_POST['tiny_wp_modules_settings']['redirect_after_logout_for'] ?? array();
-				
-				// Process each role - if it's in POST data, it's checked (value = '1'), if not, it's unchecked
-				foreach ( $all_roles as $role ) {
-					if ( isset( $posted_roles[ $role ] ) && $posted_roles[ $role ] === '1' ) {
-						$settings['redirect_after_logout_for'][ $role ] = '1';
-					} else {
-						$settings['redirect_after_logout_for'][ $role ] = '0';
-					}
-				}
+				$settings['redirect_after_logout_for'] = $this->process_user_roles( $posted_roles );
 				
 				// Password Protection settings
 				if ( isset( $_POST['tiny_wp_modules_settings']['password_protection_password'] ) ) {
@@ -461,45 +439,17 @@ class Admin {
 				
 				// SVG Upload settings
 				$settings['enable_svg_upload'] = isset( $_POST['tiny_wp_modules_settings']['enable_svg_upload'] ) ? '1' : '0';
-				error_log('Tiny WP Modules: SVG upload enabled: ' . $settings['enable_svg_upload']);
 				
-				// Process SVG upload roles - handle both checked and unchecked states
-				$settings['svg_upload_roles'] = array();
-				$all_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber', 'shop_manager', 'customer' );
-				
-				// Get the POST data for roles
+				// Process SVG upload roles
 				$posted_roles = $_POST['tiny_wp_modules_settings']['svg_upload_roles'] ?? array();
-				error_log('Tiny WP Modules: SVG upload roles POST data: ' . print_r( $posted_roles, true ));
-				
-				// Process each role - if it's in POST data, it's checked (value = '1'), if not, it's unchecked
-				foreach ( $all_roles as $role ) {
-					if ( isset( $posted_roles[ $role ] ) && $posted_roles[ $role ] === '1' ) {
-						$settings['svg_upload_roles'][ $role ] = '1';
-					} else {
-						$settings['svg_upload_roles'][ $role ] = '0';
-					}
-				}
-				
-				error_log('Tiny WP Modules: SVG upload roles processed: ' . print_r( $settings['svg_upload_roles'], true ));
+				$settings['svg_upload_roles'] = $this->process_user_roles( $posted_roles );
 				
 				// AVIF Upload settings
 				$settings['enable_avif_upload'] = isset( $_POST['tiny_wp_modules_settings']['enable_avif_upload'] ) ? '1' : '0';
 				
-				// Process AVIF upload roles - handle both checked and unchecked states
-				$settings['avif_upload_roles'] = array();
-				$all_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber', 'shop_manager', 'customer' );
-				
-				// Get the POST data for roles
+				// Process AVIF upload roles
 				$posted_roles = $_POST['tiny_wp_modules_settings']['avif_upload_roles'] ?? array();
-				
-				// Process each role - if it's in POST data, it's checked (value = '1'), if not, it's unchecked
-				foreach ( $all_roles as $role ) {
-					if ( isset( $posted_roles[ $role ] ) && $posted_roles[ $role ] === '1' ) {
-						$settings['avif_upload_roles'][ $role ] = '1';
-					} else {
-						$settings['avif_upload_roles'][ $role ] = '0';
-					}
-				}
+				$settings['avif_upload_roles'] = $this->process_user_roles( $posted_roles );
 				
 				// Image Upload Control settings
 				$settings['enable_image_upload_control'] = isset( $_POST['tiny_wp_modules_settings']['enable_image_upload_control'] ) ? '1' : '0';
@@ -533,21 +483,9 @@ class Admin {
 				if ( isset( $_POST['tiny_wp_modules_settings']['maintenance_bypass_key'] ) ) {
 					$settings['maintenance_bypass_key'] = sanitize_text_field( $_POST['tiny_wp_modules_settings']['maintenance_bypass_key'] );
 				}
-				// Process maintenance mode allowed roles - handle both checked and unchecked states
-				$settings['maintenance_allowed_roles'] = array();
-				$all_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber', 'shop_manager', 'customer' );
-				
-				// Get the POST data for roles
+				// Process maintenance mode allowed roles
 				$posted_roles = $_POST['tiny_wp_modules_settings']['maintenance_allowed_roles'] ?? array();
-				
-				// Process each role - if it's in POST data, it's checked (value = '1'), if not, it's unchecked
-				foreach ( $all_roles as $role ) {
-					if ( isset( $posted_roles[ $role ] ) && $posted_roles[ $role ] === '1' ) {
-						$settings['maintenance_allowed_roles'][ $role ] = '1';
-					} else {
-						$settings['maintenance_allowed_roles'][ $role ] = '0';
-					}
-				}
+				$settings['maintenance_allowed_roles'] = $this->process_user_roles( $posted_roles );
 				break;
 				
 			case 'updates':
@@ -587,31 +525,23 @@ class Admin {
 				break;
 		}
 
-		// Debug: Log what settings are being saved
-		error_log( 'Tiny WP Modules: Final settings to save: ' . print_r( $settings, true ) );
+		// Debug logging for settings being saved
+		error_log( 'Tiny WP Modules: Settings being saved: ' . print_r( $settings, true ) );
 		
 		$result = Settings_Config::update_settings( $settings );
 		
-		// Debug logging
-		error_log( 'Tiny WP Modules: Settings saved successfully. Result: ' . ( $result ? 'true' : 'false' ) );
-		error_log( 'Tiny WP Modules: Current tab: ' . $current_tab );
-		error_log( 'Tiny WP Modules: Plugin slug: ' . $plugin_slug );
-		
-		// Verify the settings were actually saved
-		$saved_settings = get_option( 'tiny_wp_modules_settings' );
-		error_log( 'Tiny WP Modules: Settings after save: ' . print_r( $saved_settings, true ) );
+		// Debug logging for result
+		error_log( 'Tiny WP Modules: Settings save result: ' . print_r( $result, true ) );
 		
 		// Redirect to prevent form resubmission, preserving the current tab
+		// Since the form is submitted from the settings page, redirect back to settings page
 		$redirect_url = add_query_arg( 
 			array(
 				'settings-updated' => 'true',
 				'tab' => $current_tab
 			), 
-			admin_url( 'admin.php?page=' . $plugin_slug ) 
+			admin_url( 'admin.php?page=' . $plugin_slug . '-settings' ) 
 		);
-		
-		error_log( 'Tiny WP Modules: Redirecting to: ' . $redirect_url );
-		error_log( 'Tiny WP Modules: Final redirect URL: ' . $redirect_url );
 		
 		wp_redirect( $redirect_url );
 		exit;

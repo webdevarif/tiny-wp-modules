@@ -18,6 +18,10 @@ class SVG_Upload {
 	public function __construct() {
 		$settings = get_option( 'tiny_wp_modules_settings', array() );
 		
+		// Initialize global variable to empty array by default
+		global $roles_svg_upload_enabled;
+		$GLOBALS['roles_svg_upload_enabled'] = array();
+		
 		// Check if SVG upload is enabled
 		if ( ! isset( $settings['enable_svg_upload'] ) || ! $settings['enable_svg_upload'] ) {
 			return;
@@ -37,7 +41,6 @@ class SVG_Upload {
 		}
 		
 		// Store in global variable for compatibility
-		global $roles_svg_upload_enabled;
 		$GLOBALS['roles_svg_upload_enabled'] = $roles_svg_upload_enabled;
 
 		// Add hooks for SVG upload functionality (matching working plugin)
@@ -61,6 +64,11 @@ class SVG_Upload {
 	 */
 	public function add_svg_mime( $mimes ) {
 		global $roles_svg_upload_enabled;
+
+		// Check if global variable is set and is an array
+		if ( ! isset( $roles_svg_upload_enabled ) || ! is_array( $roles_svg_upload_enabled ) ) {
+			return $mimes;
+		}
 
 		$current_user = wp_get_current_user();
 		$current_user_roles = (array) $current_user->roles; // single dimensional array of role slugs
@@ -87,6 +95,11 @@ class SVG_Upload {
 	 */
 	public function confirm_file_type_is_svg( $filetypes_extensions, $file, $filename, $mimes ) {
 		global $roles_svg_upload_enabled;
+
+		// Check if global variable is set and is an array
+		if ( ! isset( $roles_svg_upload_enabled ) || ! is_array( $roles_svg_upload_enabled ) ) {
+			return $filetypes_extensions;
+		}
 
 		$current_user = wp_get_current_user();
 		$current_user_roles = (array) $current_user->roles; // single dimensional array of role slugs

@@ -25,7 +25,7 @@ class AVIF_Upload {
 	 * Initialize WordPress hooks
 	 */
 	private function init_hooks() {
-		add_filter( 'upload_mimes', array( $this, 'allow_avif_mime_type_upload' ) );
+		add_filter( 'upload_mimes', array( $this, 'add_avif_mime_type_upload' ) );
 		add_filter( 'wp_get_mime_types', array( $this, 'add_avif_mime_type' ) );
 		add_filter( 'mime_types', array( $this, 'add_avif_mime_type' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'handle_exif_and_fileinfo_fail' ), 10, 5 );
