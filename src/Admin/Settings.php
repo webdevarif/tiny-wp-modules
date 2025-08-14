@@ -50,8 +50,6 @@ class Settings {
 				'sanitize_callback' => array( $this, 'sanitize_settings' ),
 				'type' => 'array',
 				'default' => array(
-					'enable_modules' => '1',
-					'debug_mode' => '0',
 					'enable_faq' => '0',
 					'enable_elementor' => '0',
 				),
@@ -61,8 +59,6 @@ class Settings {
 		// Ensure the option exists
 		if ( ! get_option( $this->option_name ) ) {
 			add_option( $this->option_name, array(
-				'enable_modules' => '1',
-				'debug_mode' => '0',
 				'enable_faq' => '0',
 				'enable_elementor' => '0',
 			) );
@@ -80,11 +76,7 @@ class Settings {
 		$existing_settings = get_option( $this->option_name, array() );
 		$sanitized = array();
 
-		// Sanitize enable modules
-		$sanitized['enable_modules'] = isset( $input['enable_modules'] ) ? '1' : '0';
 
-		// Sanitize debug mode
-		$sanitized['debug_mode'] = isset( $input['debug_mode'] ) ? '1' : '0';
 
 		// Sanitize FAQ settings
 		$sanitized['enable_faq'] = isset( $input['enable_faq'] ) ? '1' : '0';
@@ -111,7 +103,7 @@ class Settings {
 		// This preserves existing values for any settings not in the current form
 		foreach ( $existing_settings as $key => $value ) {
 			// Skip settings we've already handled
-			if ( in_array( $key, array( 'enable_modules', 'debug_mode', 'enable_faq', 'enable_elementor', 'faq_label', 'faq_slug' ) ) ) {
+			if ( in_array( $key, array( 'enable_faq', 'enable_elementor', 'faq_label', 'faq_slug' ) ) ) {
 				continue;
 			}
 			

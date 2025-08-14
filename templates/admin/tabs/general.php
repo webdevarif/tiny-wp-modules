@@ -20,41 +20,7 @@ $settings = get_option( 'tiny_wp_modules_settings', array() );
 <div class="tab-content" id="general-tab">
 	<table class="settings-table">
 		<tbody>
-			<tr class="setting-row">
-				<td class="setting-label">
-					<strong><?php esc_html_e( 'Enable Modules', 'tiny-wp-modules' ); ?></strong>
-				</td>
-				<td class="setting-control">
-					<?php echo Components::render_switch( array(
-						'id' => 'enable_modules',
-						'name' => 'tiny_wp_modules_settings[enable_modules]',
-						'value' => '1',
-						'checked' => isset( $settings['enable_modules'] ) ? $settings['enable_modules'] : 1,
-						'label' => __( 'Enable all modules by default', 'tiny-wp-modules' )
-					) ); ?>
-					<div class="setting-description">
-						<?php esc_html_e( 'Enable all modules by default for enhanced functionality.', 'tiny-wp-modules' ); ?>
-					</div>
-				</td>
-			</tr>
 
-			<tr class="setting-row">
-				<td class="setting-label">
-					<strong><?php esc_html_e( 'Debug Mode', 'tiny-wp-modules' ); ?></strong>
-				</td>
-				<td class="setting-control">
-					<?php echo Components::render_switch( array(
-						'id' => 'debug_mode',
-						'name' => 'tiny_wp_modules_settings[debug_mode]',
-						'value' => '1',
-						'checked' => isset( $settings['debug_mode'] ) ? $settings['debug_mode'] : 0,
-						'label' => __( 'Enable debug mode (for development)', 'tiny-wp-modules' )
-					) ); ?>
-					<div class="setting-description">
-						<?php esc_html_e( 'Enable debug mode for development and troubleshooting purposes.', 'tiny-wp-modules' ); ?>
-					</div>
-				</td>
-			</tr>
 
 			<tr class="setting-row">
 				<td class="setting-label">

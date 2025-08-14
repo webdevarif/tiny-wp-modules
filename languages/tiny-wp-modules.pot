@@ -28,25 +28,7 @@ msgstr ""
 msgid "General Settings"
 msgstr ""
 
-#: src/Admin/Settings.php:42
-msgid "Enable Modules"
-msgstr ""
 
-#: src/Admin/Settings.php:49
-msgid "Debug Mode"
-msgstr ""
-
-#: src/Admin/Settings.php:58
-msgid "Configure the general settings for Tiny WP Modules."
-msgstr ""
-
-#: src/Admin/Settings.php:67
-msgid "Enable all modules by default"
-msgstr ""
-
-#: src/Admin/Settings.php:78
-msgid "Enable debug mode (for development)"
-msgstr ""
 
 #: templates/admin/admin-page.php:15
 msgid "Welcome to Tiny WP Modules"
@@ -72,9 +54,7 @@ msgstr ""
 msgid "WordPress Version:"
 msgstr ""
 
-#: templates/admin/admin-page.php:40
-msgid "Quick Actions"
-msgstr ""
+
 
 #: templates/admin/admin-page.php:47
 msgid "Refresh Status"

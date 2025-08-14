@@ -298,11 +298,7 @@ class Change_Login_URL {
 		// Clean the URL input for comparison
 		$url_input = trim( $url_input, '/' );
 		
-		// Debug logging (only if debug mode is enabled)
-		$debug_mode = isset( $settings['debug_mode'] ) ? $settings['debug_mode'] : '0';
-		if ( $debug_mode ) {
-			error_log( 'Tiny WP Modules - URL Check: ' . $url_input . ' | Allowed paths: ' . implode( ', ', $allowed_paths ) );
-		}
+
 		
 		// Check if any of the allowed paths match the current URL
 		foreach ( $allowed_paths as $allowed_path ) {
@@ -310,17 +306,11 @@ class Change_Login_URL {
 			
 			// Exact match
 			if ( $url_input === $allowed_path ) {
-				if ( $debug_mode ) {
-					error_log( 'Tiny WP Modules - Exact match found: ' . $allowed_path );
-				}
 				return true;
 			}
 			
 			// Check if URL starts with the allowed path (for sub-paths)
 			if ( ! empty( $allowed_path ) && strpos( $url_input, $allowed_path . '/' ) === 0 ) {
-				if ( $debug_mode ) {
-					error_log( 'Tiny WP Modules - Sub-path match found: ' . $allowed_path );
-				}
 				return true;
 			}
 		}

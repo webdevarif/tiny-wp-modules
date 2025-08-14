@@ -84,8 +84,6 @@ class Ajax_Handler {
 		$settings = get_option( 'tiny_wp_modules_settings', array() );
 		
 		// Update general settings
-		$settings['enable_modules'] = isset( $_POST['tiny_wp_modules_settings']['enable_modules'] ) ? '1' : '0';
-		$settings['debug_mode'] = isset( $_POST['tiny_wp_modules_settings']['debug_mode'] ) ? '1' : '0';
 		$settings['enable_faq'] = isset( $_POST['tiny_wp_modules_settings']['enable_faq'] ) ? '1' : '0';
 		$settings['enable_elementor'] = isset( $_POST['tiny_wp_modules_settings']['enable_elementor'] ) ? '1' : '0';
 		

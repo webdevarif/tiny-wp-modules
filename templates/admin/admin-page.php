@@ -52,25 +52,7 @@ use TinyWpModules\Admin\Components;
 					)
 				) ); ?>
 
-				<?php echo Components::render_card( array(
-					'title' => __( 'Quick Actions', 'tiny-wp-modules' ),
-					'icon' => 'admin-generic',
-					'content' => '<p>' . __( 'Quick access to common plugin functions.', 'tiny-wp-modules' ) . '</p>',
-					'actions' => array(
-						array(
-							'text' => __( 'Settings', 'tiny-wp-modules' ),
-							'url' => admin_url( 'admin.php?page=tiny-wp-modules-settings' ),
-							'class' => 'tiny-btn tiny-btn-primary',
-							'icon' => 'admin-settings'
-						),
-						array(
-							'text' => __( 'Check Updates', 'tiny-wp-modules' ),
-							'id' => 'check-updates',
-							'class' => 'tiny-btn tiny-btn-secondary',
-							'icon' => 'update'
-						)
-					)
-				) ); ?>
+
 
 				<?php echo Components::render_card( array(
 					'title' => __( 'Module Information', 'tiny-wp-modules' ),

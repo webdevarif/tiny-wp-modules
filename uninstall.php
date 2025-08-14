@@ -26,8 +26,6 @@ function tiny_wp_modules_remove_all_data() {
 
 	// Remove all plugin options
 	$options_to_delete = array(
-		'tiny_wp_modules_enable_modules',
-		'tiny_wp_modules_debug_mode',
 		'tiny_wp_modules_log_level',
 		'tiny_wp_modules_activated',
 		'tiny_wp_modules_activation_time',

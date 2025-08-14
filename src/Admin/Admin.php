@@ -8,6 +8,7 @@
 namespace TinyWpModules\Admin;
 
 use TinyWpModules\Admin\Settings;
+use TinyWpModules\Admin\Elementor_Manager;
 
 /**
  * Admin functionality
@@ -356,8 +357,6 @@ class Admin {
 		switch ( $current_tab ) {
 			case 'general':
 				// General tab settings
-				$settings['enable_modules'] = isset( $_POST['tiny_wp_modules_settings']['enable_modules'] ) ? '1' : '0';
-				$settings['debug_mode'] = isset( $_POST['tiny_wp_modules_settings']['debug_mode'] ) ? '1' : '0';
 				$settings['enable_faq'] = isset( $_POST['tiny_wp_modules_settings']['enable_faq'] ) ? '1' : '0';
 				$settings['enable_elementor'] = isset( $_POST['tiny_wp_modules_settings']['enable_elementor'] ) ? '1' : '0';
 				
@@ -438,45 +437,14 @@ class Admin {
 					$settings[ $module ] = isset( $_POST['tiny_wp_modules_settings'][ $module ] ) ? '1' : '0';
 				}
 				
-				// Elementor widget settings
-				$widget_items = array(
-					'hero_section_widget',
-					'testimonials_widget',
-					'pricing_table_widget',
-					'team_members_widget',
-					'countdown_timer_widget',
-					'progress_bars_widget'
-				);
-				
-				foreach ( $widget_items as $widget ) {
-					$settings[ $widget ] = isset( $_POST['tiny_wp_modules_settings'][ $widget ] ) ? '1' : '0';
-				}
-				
-				// Elementor tag settings
-				$tag_items = array(
-					'user_info_tag',
-					'post_meta_tag',
-					'site_info_tag',
-					'custom_fields_tag',
-					'query_loop_tag'
-				);
-				
-				foreach ( $tag_items as $tag ) {
-					$settings[ $tag ] = isset( $_POST['tiny_wp_modules_settings'][ $tag ] ) ? '1' : '0';
-				}
-				
-				// Elementor WooCommerce settings
-				$woocommerce_items = array(
-					'product_grid_widget',
-					'product_carousel_widget',
-					'category_showcase_widget',
-					'cart_summary_widget',
-					'wishlist_widget',
-					'product_comparison_widget'
-				);
-				
-				foreach ( $woocommerce_items as $item ) {
-					$settings[ $item ] = isset( $_POST['tiny_wp_modules_settings'][ $item ] ) ? '1' : '0';
+				// Get all Elementor items dynamically from modules
+				$module_types = array( 'widgets', 'tags', 'woocommerce' );
+				foreach ( $module_types as $module_type ) {
+					$items = Elementor_Manager::get_module_items( $module_type );
+					foreach ( $items as $item ) {
+						$item_id = $item['id'];
+						$settings[ $item_id ] = isset( $_POST['tiny_wp_modules_settings'][ $item_id ] ) ? '1' : '0';
+					}
 				}
 				break;
 		}

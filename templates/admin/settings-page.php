@@ -21,8 +21,6 @@ $plugin_slug = $tiny_wp_modules_plugin ? $tiny_wp_modules_plugin->get_plugin_slu
 // Ensure settings are registered with WordPress
 if ( ! get_option( 'tiny_wp_modules_settings' ) ) {
 	add_option( 'tiny_wp_modules_settings', array(
-		'enable_modules' => '1',
-		'debug_mode' => '0',
 		'enable_faq' => '0',
 		'enable_elementor' => '0',
 	) );
@@ -36,8 +34,6 @@ if ( ! has_action( 'admin_init', array( 'TinyWpModules\Admin\Settings', 'registe
 		array(
 			'sanitize_callback' => function( $input ) {
 				$sanitized = array();
-				$sanitized['enable_modules'] = isset( $input['enable_modules'] ) ? '1' : '0';
-				$sanitized['debug_mode'] = isset( $input['debug_mode'] ) ? '1' : '0';
 				$sanitized['enable_faq'] = isset( $input['enable_faq'] ) ? '1' : '0';
 				$sanitized['enable_elementor'] = isset( $input['enable_elementor'] ) ? '1' : '0';
 				

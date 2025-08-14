@@ -38,8 +38,6 @@ class Activator {
 	 */
 	private function set_default_options() {
 		$default_options = array(
-			'enable_modules' => '1',
-			'debug_mode'     => '0',
 			'log_level'      => 'info',
 		);
 
