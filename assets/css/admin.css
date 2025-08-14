@@ -1809,47 +1809,7 @@ input:checked + .tiny-wp-modules-slider:before {
 	color: var(--tiny-primary-color);
 }
 
-/* Dependency Status Section */
-.dependency-status {
-	display: flex;
-	gap: var(--tiny-spacing-lg);
-	margin-bottom: var(--tiny-spacing-xl);
-	padding: var(--tiny-spacing-lg);
-	background: var(--tiny-bg-light);
-	border: 1px solid var(--tiny-border-light);
-	border-radius: var(--tiny-border-radius-md);
-}
 
-.dependency-item {
-	display: flex;
-	align-items: center;
-	gap: var(--tiny-spacing-sm);
-	padding: var(--tiny-spacing-sm) var(--tiny-spacing-md);
-	border-radius: var(--tiny-border-radius-sm);
-	font-size: var(--tiny-font-size-sm);
-	font-weight: var(--tiny-font-weight-medium);
-}
-
-.dependency-item.active {
-	background: var(--tiny-success-color-soft);
-	color: var(--tiny-success-color);
-	border: 1px solid var(--tiny-success-color);
-}
-
-.dependency-item.inactive {
-	background: var(--tiny-warning-color-soft);
-	color: var(--tiny-warning-color);
-	border: 1px solid var(--tiny-warning-color);
-}
-
-.status-icon {
-	font-size: var(--tiny-font-size-md);
-	flex-shrink: 0;
-}
-
-.status-text {
-	line-height: 1.4;
-}
 
 /* Dependency Warning Styles */
 .dependency-warning {
